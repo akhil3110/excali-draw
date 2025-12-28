@@ -1,8 +1,8 @@
 import express from "express"
 import cors from "cors"
 import jwt from "jsonwebtoken";
-import { JWT_SECERET } from "./config";
 import { middleware } from "./middleware";
+import {JWT_SECERET} from "@repo/backend-common/config"
 
 const app = express();
 const port = 3001;
@@ -46,5 +46,6 @@ app.post("/create-room",middleware,(req,res) => {
 
 
 app.listen(port, () => {
+    console.log(JWT_SECERET)
     console.log("Backend App started at port " +port )
 })
