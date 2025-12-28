@@ -7,11 +7,11 @@
     "dev": "bun index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@repo/typescript-config": "*"
   },
   "peerDependencies": {
-    "typescript": "^5",
-    "@repo/typescript-config": "*"
+    "typescript": "^5"
   },
   "dependencies": {
     "@types/ws": "^8.18.1",
