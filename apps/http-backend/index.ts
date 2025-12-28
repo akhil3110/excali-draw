@@ -19,6 +19,7 @@ app.get("/",(req,res) => {
 app.put("/sign-in",(req,res) => {
     const {email, password} = req.body
 
+    // check user password and get userId   
     const userId = 1;
     const token  = jwt.sign({
         userId

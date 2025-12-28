@@ -53,7 +53,9 @@
     "apps/ws-backend": {
       "name": "ws-backend",
       "dependencies": {
+        "@types/jsonwebtoken": "^9.0.10",
         "@types/ws": "^8.18.1",
+        "jsonwebtoken": "^9.0.3",
         "ws": "^8.18.3",
       },
       "devDependencies": {
