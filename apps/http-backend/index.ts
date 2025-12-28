@@ -2,7 +2,8 @@ import express from "express"
 import cors from "cors"
 import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
-import {JWT_SECERET} from "@repo/backend-common/config"
+import {JWT_SECERET} from "@repo/backend-common/secret"
+import {CreateUserSchema, SignInSchema, CreateRoomSchema} from "@repo/common/types"
 
 const app = express();
 const port = 3001;
@@ -29,6 +30,15 @@ app.put("/sign-in",(req,res) => {
 })
 
 app.post("/sign-up",(req,res) => {
+
+    const data = CreateUserSchema.safeParse(req.body)
+
+    if(!data.success){
+        res.json({
+            message: "Incorect inputs"
+        })
+    }
+
     res.json({
         userId: 123
     })

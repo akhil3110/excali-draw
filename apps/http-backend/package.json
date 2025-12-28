@@ -7,7 +7,8 @@
     "@types/bun": "latest",
     "@types/express": "^5.0.6",
     "@repo/typescript-config": "*",
-    "@repo/backend-common": "*"
+    "@repo/backend-common": "*",
+    "@repo/common": "*"
   },
   "scripts": {
     "dev": "bun index.ts"
