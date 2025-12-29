@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
 import {JWT_SECERET} from "@repo/backend-common/secret"
 import {CreateUserSchema, SignInSchema, CreateRoomSchema} from "@repo/common/types"
+import {prisma} from "@repo/db/prismaClient"
 
 const app = express();
 const port = 3001;
