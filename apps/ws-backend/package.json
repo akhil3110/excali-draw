@@ -9,7 +9,8 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@repo/typescript-config": "*",
-    "@repo/backend-common": "*"
+    "@repo/backend-common": "*",
+    "@repo/db": "*"
   },
   "peerDependencies": {
     "typescript": "^5"
