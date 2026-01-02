@@ -2,20 +2,21 @@
   "name": "@repo/db",
   "module": "index.ts",
   "type": "module",
-  "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.31.8"
   },
   "peerDependencies": {
-    "typescript": "^5",
-    "@repo/typescript-config": "*"
+    "typescript": "^5.0.0"
+  },
+  "exports": {
+    "./db": "./index.ts",
+    "./schema": "./schema.ts"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
-    "pg": "^8.16.3"
-  },
-  "exports":{
-    "./prismaClient": "./prisma.ts"
+    "@neondatabase/serverless": "^1.0.2",
+    "@paralleldrive/cuid2": "^3.0.6",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1"
   }
 }

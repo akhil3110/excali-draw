@@ -1,25 +1,43 @@
+import dotenv from "dotenv";
+
 import express from "express"
 import cors from "cors"
 import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
 import {JWT_SECERET} from "@repo/backend-common/secret"
-import {CreateUserSchema, SignInSchema, CreateRoomSchema} from "@repo/common/types"
-import {prisma} from "@repo/db/prismaClient"
+import {CreateUserSchema} from "@repo/common/types"
+import {db} from "@repo/db/db"
+import {user} from "@repo/db/schema"
 
 const app = express();
 const port = 3001;
 
-app.use(express.json())
 app.use(cors())
+app.use(express.json())
 
-app.get("/",(req,res) => {
 
-    res.send("Hello world")
+app.get("/",async(req,res) => {
+
+   try {
+    
+    //  const data = await prisma.user.findMany()
+
+    const users = await db.select().from(user);
+
+    return res.json({
+        users,
+        message: "Data"
+    })
+   } catch (error) {
+    console.log(error)
+   }
     
 })
 
 app.put("/sign-in",(req,res) => {
     const {email, password} = req.body
+
+
 
     // check user password and get userId   
     const userId = 1;
@@ -30,19 +48,34 @@ app.put("/sign-in",(req,res) => {
     res.json({token})
 })
 
-app.post("/sign-up",(req,res) => {
+app.post("/sign-up",async(req,res) => {
 
-    const data = CreateUserSchema.safeParse(req.body)
+   try {
+    const userDetails = CreateUserSchema.safeParse(req.body)
 
-    if(!data.success){
-        res.json({
-            message: "Incorect inputs"
-        })
+    console.log("b")
+
+    if(!userDetails.success){
+        return res.json({
+            message: "invalid inputs"
+        }).status(403)
     }
 
-    res.json({
-        userId: 123
+    
+//    const user = await prisma.user.create({
+//         data: {
+//             email: userDetails.data.email,
+//             password: userDetails.data.password,
+//             name: userDetails.data.name
+//         }
+//    })
+
+    return res.json({
+        userId: "user.id"
     })
+   } catch (error) {
+    console.log(error)
+   }
 })
 
 
