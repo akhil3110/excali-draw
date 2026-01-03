@@ -11,9 +11,10 @@
     "typescript": "^5"
   },
   "exports": {
-    "./secret": "./secret.ts"
+    "./secret": "./index.ts"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "zod": "^4.2.1"
   }
 }

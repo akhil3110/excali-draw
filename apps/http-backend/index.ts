@@ -1,13 +1,16 @@
-import dotenv from "dotenv";
+import "dotenv/config"; // MUST BE FIRST
 
 import express from "express"
 import cors from "cors"
 import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
-import {JWT_SECERET} from "@repo/backend-common/secret"
-import {CreateUserSchema} from "@repo/common/types"
+import {JWT_SECERET, SALT_ROUNDS, Plain_Text_Secret} from "@repo/backend-common/secret"
+import {CreateUserSchema, CreateRoomSchema, SignInSchema} from "@repo/common/types"
 import {db} from "@repo/db/db"
-import {user} from "@repo/db/schema"
+import {user, room} from "@repo/db/schema"
+import bcrypt from "bcryptjs";
+import { use } from "react";
+
 
 const app = express();
 const port = 3001;
@@ -34,18 +37,41 @@ app.get("/",async(req,res) => {
     
 })
 
-app.put("/sign-in",(req,res) => {
-    const {email, password} = req.body
+app.put("/sign-in",async(req,res) => {
+    const userDetails = SignInSchema.safeParse(req.body)
+    
+    if(!userDetails.success){
+        return res.json({
+            message: "Invalid inputs"
+        }).status(403)
+    }
 
+    const UserExist = await db.query.user.findFirst({
+        where: (user, {eq}) => eq(user.email,userDetails.data.email,)
+    })
 
+    if(!UserExist){
+        return res.json({
+            message: "User Does not exist. Please signup !"
+        }).status(403)
+    }
+
+    const passwordCompare = bcrypt.compare(userDetails.data.password,UserExist.password)
+
+    if(!passwordCompare){
+        return res.json({
+            message: "Incorect password! please enter correct password"
+        })
+    }
+    
+    
 
     // check user password and get userId   
-    const userId = 1;
-    const token  = jwt.sign({
-        userId
-    },JWT_SECERET)
+    const token = jwt.sign(UserExist.id,JWT_SECERET)
 
-    res.json({token})
+    return res.json({
+        token
+    })
 })
 
 app.post("/sign-up",async(req,res) => {
@@ -53,25 +79,35 @@ app.post("/sign-up",async(req,res) => {
    try {
     const userDetails = CreateUserSchema.safeParse(req.body)
 
-    console.log("b")
-
     if(!userDetails.success){
         return res.json({
             message: "invalid inputs"
         }).status(403)
     }
 
+    const userExist = await db.query.user.findFirst({
+       where: (user, {eq}) => eq(user.email,userDetails.data.email)
+    })
+
+    if(userExist){
+        return res.json({
+            message: "User already exists"
+        }).status(403)
+    }
+
+    const bcryptPassword = await bcrypt.hash(userDetails.data.password,SALT_ROUNDS)
+
+    const NewUser =  await db.insert(user).values({
+        email: userDetails.data.email,
+        name: userDetails.data.name,
+        password: bcryptPassword
+    })
+
     
-//    const user = await prisma.user.create({
-//         data: {
-//             email: userDetails.data.email,
-//             password: userDetails.data.password,
-//             name: userDetails.data.name
-//         }
-//    })
+    const token = jwt.sign(NewUser.oid.toString(),JWT_SECERET)
 
     return res.json({
-        userId: "user.id"
+        token: token
     })
    } catch (error) {
     console.log(error)
@@ -79,11 +115,30 @@ app.post("/sign-up",async(req,res) => {
 })
 
 
-app.post("/create-room",middleware,(req,res) => {
+app.post("/create-room",middleware,async(req,res) => {
     //db  call create a room
 
+    const data = CreateRoomSchema.safeParse(req.body)
+
+    if(!req.userId){
+        return res.json({
+            message: "Unauthorized"
+        }).status(403)
+    }
+
+    if(!data.success){
+        return res.json({
+            message: "Invalid inputs"
+        }).status(403)
+    }
+
+    const newRoom = await db.insert(room).values({
+        slug: data.data.name,
+        adminId: req.userId
+    })
+
     res.json({
-        roomId: 1
+        roomId: newRoom.oid
     })
 })
 
