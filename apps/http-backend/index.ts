@@ -10,6 +10,7 @@ import {db} from "@repo/db/db"
 import {user, room} from "@repo/db/schema"
 import bcrypt from "bcryptjs";
 import { use } from "react";
+import { id } from "zod/locales";
 
 
 const app = express();
@@ -120,9 +121,11 @@ app.post("/create-room",middleware,async(req,res) => {
 
     const data = CreateRoomSchema.safeParse(req.body)
 
+    console.log("UserId from req:", req.userId);
+
     if(!req.userId){
         return res.json({
-            message: "Unauthorized"
+            message: "Unauthorized access"
         }).status(403)
     }
 
@@ -135,10 +138,14 @@ app.post("/create-room",middleware,async(req,res) => {
     const newRoom = await db.insert(room).values({
         slug: data.data.name,
         adminId: req.userId
+    }).returning({
+        id: room.id
     })
 
-    res.json({
-        roomId: newRoom.oid
+    console.log("New Room Created:", newRoom);
+
+    return res.json({
+        roomId: newRoom[0]?.id
     })
 })
 
