@@ -10,7 +10,7 @@ import {db} from "@repo/db/db"
 import {user, room} from "@repo/db/schema"
 import bcrypt from "bcryptjs";
 import { use } from "react";
-import { id } from "zod/locales";
+import { da, id } from "zod/locales";
 
 
 const app = express();
@@ -121,8 +121,6 @@ app.post("/create-room",middleware,async(req,res) => {
 
     const data = CreateRoomSchema.safeParse(req.body)
 
-    console.log("UserId from req:", req.userId);
-
     if(!req.userId){
         return res.json({
             message: "Unauthorized access"
@@ -135,23 +133,29 @@ app.post("/create-room",middleware,async(req,res) => {
         }).status(403)
     }
 
+    const roomExist = await db.query.room.findFirst({
+        where: (room, {eq}) => eq(room.slug, data.data.name)
+    })
+
+    if(roomExist){
+        return res.json({
+            mesaage: "A room with this name already exist try with some other name",
+            roomId: roomExist.id
+        }).status(403)
+    }
+
     const newRoom = await db.insert(room).values({
         slug: data.data.name,
         adminId: req.userId
-    }).returning({
-        id: room.id
     })
 
-    console.log("New Room Created:", newRoom);
-
     return res.json({
-        roomId: newRoom[0]?.id
+        roomId: newRoom.oid
     })
 })
 
 
 
 app.listen(port, () => {
-    console.log(JWT_SECERET)
     console.log("Backend App started at port " +port )
 })

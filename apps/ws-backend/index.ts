@@ -15,11 +15,17 @@ wss.on('connection', function connection(ws,request) {
     }
 
     const queryparams = new URLSearchParams(url.split('?')[1])
-    const token  = queryparams.get("token") || ""
-    
-    const decoded = jwt.verify(token,JWT_SECERET) as JwtPayload
+    const token  = queryparams.get("token")
+    console.log("Token:",token)
 
-    if(!decoded || !decoded.userId){
+    if(!token){
+        ws.close();
+        return
+    }
+    
+    const decoded = jwt.verify(token,JWT_SECERET)
+    console.log("Decoded token:",decoded)
+    if(!decoded){
         ws.close();
         return
     }
@@ -31,5 +37,6 @@ wss.on('connection', function connection(ws,request) {
     ws.on('message', function message(data) {
         console.log('received: %s', data);
         ws.send(data.toString());
+
     });
 });

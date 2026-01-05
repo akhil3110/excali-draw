@@ -7,7 +7,6 @@ export function middleware(req: Request,res: Response,next: NextFunction){
 
     try {
         const token = req.headers["authorization"]; 
-        console.log("Token from Header:", token);
 
         if(!token){
             return res.status(403).json({
@@ -16,7 +15,6 @@ export function middleware(req: Request,res: Response,next: NextFunction){
         }
 
         const decoded = jwt.verify(token,JWT_SECERET) as string | JwtPayload;
-        console.log("Decoded Token:", decoded);
 
         //@ts-expect-error: request userId assignment
         req.userId = decoded;
