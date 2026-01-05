@@ -1,7 +1,7 @@
 
 import { integer, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2'
-import { use } from 'react';
+import { relations } from 'drizzle-orm';
 
 export const user = pgTable('user',{
     id: text('id').primaryKey().$defaultFn(() => createId()),
@@ -31,3 +31,27 @@ export const chat = pgTable('chat', {
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().$onUpdate(() => new Date()),
 })
+
+export const userRelations = relations(user,({many}) =>({
+    rooms: many(room),
+    chat: many(chat)
+}))
+
+export const roomRelation = relations(room,({one,many}) => ({
+    admin: one(user, {
+        fields: [room.id],
+        references: [user.id]
+    }),
+    chats: many(chat)
+}))
+
+export const chatRelation = relations(chat, ({one,many}) => ({
+    user: one(user, {
+        fields: [chat.id],
+        references: [user.id]
+    }),
+    room: one(room,{
+        fields: [chat.roomId],
+        references: [room.id]
+    })
+}))

@@ -1,6 +1,8 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import jwt, { type JwtPayload } from "jsonwebtoken"
 import { JWT_SECERET } from '@repo/backend-common/secret';
+import {db} from "@repo/db/db"
+import { chat } from "@repo/db/schema"
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -65,7 +67,7 @@ wss.on('connection', function connection(ws,request) {
 
     console.log("Websocket server connected")
 
-    ws.on('message', function message(data) {
+    ws.on('message', async function message(data) {
 
         const parsedData = JSON.parse(data as unknown as string);
         console.log(parsedData)
@@ -98,6 +100,12 @@ wss.on('connection', function connection(ws,request) {
         if(parsedData.type === "chat"){
             const roomId  = parsedData.roomId
             const message = parsedData.message
+
+            await db.insert(chat).values({
+                message,
+                roomId,
+                userId: UserId.toString()
+            })
 
             users.forEach((u) => {
                 if(u.rooms.includes(roomId)){

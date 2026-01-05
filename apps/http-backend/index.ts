@@ -4,13 +4,11 @@ import express from "express"
 import cors from "cors"
 import jwt from "jsonwebtoken";
 import { middleware } from "./middleware";
-import {JWT_SECERET, SALT_ROUNDS, Plain_Text_Secret} from "@repo/backend-common/secret"
+import {JWT_SECERET, SALT_ROUNDS} from "@repo/backend-common/secret"
 import {CreateUserSchema, CreateRoomSchema, SignInSchema} from "@repo/common/types"
 import {db} from "@repo/db/db"
-import {user, room} from "@repo/db/schema"
+import {user, room, chat} from "@repo/db/schema"
 import bcrypt from "bcryptjs";
-import { use } from "react";
-import { da, id } from "zod/locales";
 
 
 const app = express();
@@ -154,6 +152,68 @@ app.post("/create-room",middleware,async(req,res) => {
     })
 })
 
+app.get("/rooms", middleware, async(req,res) => {
+
+    try {
+        const rooms = await db.select().from(room);
+        return res.json({
+            rooms
+        })
+    } catch (error) {
+        console.log(error)
+    }
+
+})
+
+app.get("/rooms/:roomId", middleware, async(req,res) => {
+
+    const {roomId} = req.params
+    
+    if(!roomId){
+        return res.json({
+            message: "Room ID is required"
+        }).status(403)
+    }
+
+    try {
+        const roomDetails = await db.query.room.findFirst({
+            where: (room, {eq}) => eq(room.id, parseInt(roomId)),
+            with: {
+                chats: true
+            }
+        })
+
+        return res.json({
+            roomDetails
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+app.get("/chats/:roomId",async (req,res) => {
+    try {
+        const {roomId} = req.params
+    
+        if(!roomId){
+            return res.json({
+                message: "Room ID is required"
+            }).status(403)
+        }
+
+        const chats = await db.query.chat.findMany({
+            where: (chat, {eq}) => eq(chat.roomId,parseInt(roomId)),
+            limit: 50,
+            orderBy: (chat, {desc}) => [desc(chat.id)]
+        })
+
+        return res.json({
+            chats
+        })
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 
 app.listen(port, () => {
