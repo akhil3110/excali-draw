@@ -14,7 +14,7 @@ export async function getRoomChatsRoute(req: Request, res:Response){
         const chats = await db.query.chat.findMany({
             where: (chat, {eq}) => eq(chat.roomId,parseInt(roomId)),
             limit: 50,
-            orderBy: (chat, {desc}) => [desc(chat.id)]
+            orderBy: (chat, {asc}) => [asc(chat.createdAt)]
         })
 
         return res.json({

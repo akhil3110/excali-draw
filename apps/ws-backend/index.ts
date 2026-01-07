@@ -1,8 +1,7 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import jwt, { type JwtPayload } from "jsonwebtoken"
 import { JWT_SECERET } from '@repo/backend-common/secret';
-import {db} from "@repo/db/db"
-import { chat } from "@repo/db/schema"
+import {pushMessage} from "@repo/redis/queue"
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -101,12 +100,12 @@ wss.on('connection', function connection(ws,request) {
             const roomId  = parsedData.roomId
             const message = parsedData.message
 
-            await db.insert(chat).values({
+            //queu implementetion
+           const payload = {
                 message,
                 roomId,
-                userId: UserId.toString()
-            })
-
+                userId: UserId
+            };
             users.forEach((u) => {
                 if(u.rooms.includes(roomId)){
                     // u.ws.send(JSON.stringify({
@@ -114,9 +113,11 @@ wss.on('connection', function connection(ws,request) {
                     //     roomId,
                     //     message,
                     // }))
-                    u.ws.send( message)
+                    u.ws.send(message)
                 }
             })
+            console.log(payload)
+            await pushMessage(payload);
         }
         
 

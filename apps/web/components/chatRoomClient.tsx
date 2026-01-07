@@ -41,7 +41,6 @@ export function ChatRoomClient({
 
         try {
           const parsedData = JSON.parse(event.data);
-          console.log("Parsed message:", parsedData);
 
           if (parsedData.type === "chat") {
            setChats(c => [...c, { message: parsedData.message }])

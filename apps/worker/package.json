@@ -1,0 +1,21 @@
+{
+  "name": "worker",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@repo/typescript-config": "*",
+    "@repo/redis": "*",
+    "@repo/db": "*"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "bun index.ts",
+    "build": "bun index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  }
+}
