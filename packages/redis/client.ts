@@ -3,11 +3,15 @@ import "dotenv/config";
 
 import Redis from "ioredis";
 
-console.log("redis_db_url", process.env.REDIS_DB_URL! )
+export const redisPublisher = new Redis({
+    host: process.env.REDIS_HOST,
+    port: Number(process.env.REDIS_PORT),
+    password: process.env.REDIS_PASSWORD,
+});
 
-export const redisPublisher = new Redis();
 
-
-
-export const redisConsumer = new Redis();
-
+export const redisConsumer =new Redis({
+    host: process.env.REDIS_HOST,
+    port: Number(process.env.REDIS_PORT),
+    password: process.env.REDIS_PASSWORD,
+});

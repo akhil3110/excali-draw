@@ -11,8 +11,9 @@ import { redisConsumer, redisPublisher } from "@repo/redis/client";
 
 async function worker() {
     console.log("🟢 Worker started");
+
     redisConsumer.on("connect", () => {
-        console.log("connected consumer adad")
+        console.log("connected consumer")
     })
 
     redisConsumer.on("error", (er) => {
@@ -20,7 +21,7 @@ async function worker() {
     })
 
     redisPublisher.on("connect", () => {
-        console.log("connected publisher adad")
+        console.log("connected publisher")
     })
 
     redisPublisher.on("error", (er) => {
@@ -30,7 +31,6 @@ async function worker() {
     
 
     while(true){
-        console.log("Adad")
         const job = await popMessage()
         console.log(job)
 

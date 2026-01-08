@@ -2,6 +2,7 @@ import WebSocket, { WebSocketServer } from 'ws';
 import jwt, { type JwtPayload } from "jsonwebtoken"
 import { JWT_SECERET } from '@repo/backend-common/secret';
 import {pushMessage} from "@repo/redis/queue"
+import { redisPublisher } from '@repo/redis/client';
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -116,6 +117,10 @@ wss.on('connection', function connection(ws,request) {
                     u.ws.send(message)
                 }
             })
+            console.log(await redisPublisher.ping());
+await redisPublisher.set("cloud:test", "ok");
+console.log(await redisPublisher.get("cloud:test"));
+
             console.log(payload)
             await pushMessage(payload);
         }
