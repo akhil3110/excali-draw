@@ -48,7 +48,6 @@ wss.on('connection', function connection(ws,request) {
         return
     }
     
-    console.log("ADD")
     const UserId = CheckUser(token)
     if(!UserId){
         console.log("user Disconected")
@@ -61,13 +60,12 @@ wss.on('connection', function connection(ws,request) {
         rooms: [],
         ws
     })
-    console.log(users)
 
     ws.on('error', console.error);
 
     console.log("Websocket server connected")
 
-    ws.on('message', async function message(data) {
+    ws.on('message', async function msg(data) {
 
         const parsedData = JSON.parse(data as unknown as string);
         console.log(parsedData)
@@ -98,6 +96,8 @@ wss.on('connection', function connection(ws,request) {
         //     "message": "Hello everyone"
         // }
         if(parsedData.type === "chat"){
+            try {
+                console.log("chat recieved")
             const roomId  = parsedData.roomId
             const message = parsedData.message
 
@@ -108,21 +108,20 @@ wss.on('connection', function connection(ws,request) {
                 userId: UserId
             };
             users.forEach((u) => {
-                if(u.rooms.includes(roomId)){
-                    // u.ws.send(JSON.stringify({
-                    //     type: "chat",
-                    //     roomId,
-                    //     message,
-                    // }))
-                    u.ws.send(message)
+                if(u.rooms.includes(roomId) && u.ws != ws){
+                    u.ws.send(JSON.stringify({
+                        type: "chat",
+                        roomId: Number(roomId),
+                        message,
+                    }))
+                    // u.ws.send(message)
                 }
             })
-            console.log(await redisPublisher.ping());
-await redisPublisher.set("cloud:test", "ok");
-console.log(await redisPublisher.get("cloud:test"));
 
-            console.log(payload)
-            await pushMessage(payload);
+            pushMessage(payload);
+            } catch (error) {
+                console.log("chat:",error)
+            }
         }
         
 

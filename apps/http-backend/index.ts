@@ -18,7 +18,7 @@ app.use(express.json())
 //users routes
 app.get("/",getAllUsersRoute)
 app.put("/sign-in",userSignInRoute)
-    app.post("/sign-up",userSignUpRoute)
+app.post("/sign-up",userSignUpRoute)
 
 //rooms routes
 app.post("/create-room",middleware,createRoomRoute)

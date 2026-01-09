@@ -3,6 +3,7 @@
 import { useSockets } from "@/hooks/useSockets";
 import { parse } from "path";
 import { useEffect, useState } from "react";
+import { json } from "stream/consumers";
 
 interface ChatRoomClientProps {
     messages: {message: string}[];
@@ -32,12 +33,6 @@ export function ChatRoomClient({
                 const rawData = event.data;
 
         console.log("WebSocket message event:", rawData);
-
-        // ✅ Ignore non-JSON messages
-        if (typeof rawData !== "string" || !rawData.trim().startsWith("{")) {
-          console.warn("Non-JSON message ignored:", rawData);
-          return;
-        }
 
         try {
           const parsedData = JSON.parse(event.data);
