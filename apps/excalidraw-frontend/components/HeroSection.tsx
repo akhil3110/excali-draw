@@ -54,7 +54,7 @@ const HeroSection = () => {
           </div>
 
           {/* Stats */}
-          <div 
+          {/* <div 
             className="flex flex-wrap items-center justify-center gap-8 mt-16 animate-fade-in"
             style={{ animationDelay: '0.4s' }}
           >
@@ -68,7 +68,7 @@ const HeroSection = () => {
                 <div className="text-sm text-[hsl(215,20%,65%)]">{stat.label}</div>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
 
         {/* Preview Image */}

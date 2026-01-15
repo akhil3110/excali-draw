@@ -53,14 +53,16 @@ export async function userSignInRoute(req: Request, res: Response){
 
         res.cookie("token",token, {
             httpOnly: process.env.NODE_ENV === "production",
-            secure: true,
-            sameSite: "strict",
+            secure: false,
+            sameSite: "lax",
             maxAge: 7*24*60*60*1000
         })
-    
+        
+        console.log("user Logined in successfully");
         return res.json({
             token
         })
+
 }
 
 export async function userSignUpRoute(req: Request, res: Response){
@@ -92,9 +94,18 @@ export async function userSignUpRoute(req: Request, res: Response){
         })
     
         
-        const token = jwt.sign(NewUser.oid.toString(),JWT_SECERET)
+        const token = jwt.sign({userId: NewUser.oid},JWT_SECERET,{expiresIn: "7d"})
+
+
+        res.cookie("token",token, {
+            httpOnly: process.env.NODE_ENV === "production",
+            secure: false,
+            sameSite: "lax",
+            maxAge: 7*24*60*60*1000
+        })
     
         return res.json({
+            message: "User created successfully",
             token: token
         })
        } catch (error) {
