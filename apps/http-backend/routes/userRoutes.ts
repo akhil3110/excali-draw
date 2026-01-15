@@ -38,7 +38,7 @@ export async function userSignInRoute(req: Request, res: Response){
             }).status(403)
         }
     
-        const passwordCompare = bcrypt.compare(userDetails.data.password,UserExist.password)
+        const passwordCompare = await bcrypt.compare(userDetails.data.password,UserExist.password)
     
         if(!passwordCompare){
             return res.json({
@@ -49,7 +49,14 @@ export async function userSignInRoute(req: Request, res: Response){
         
     
         // check user password and get userId   
-        const token = jwt.sign(UserExist.id,JWT_SECERET)
+        const token = jwt.sign({userId: UserExist.id},JWT_SECERET,{expiresIn: "7d"})
+
+        res.cookie("token",token, {
+            httpOnly: process.env.NODE_ENV === "production",
+            secure: true,
+            sameSite: "strict",
+            maxAge: 7*24*60*60*1000
+        })
     
         return res.json({
             token
@@ -93,4 +100,15 @@ export async function userSignUpRoute(req: Request, res: Response){
        } catch (error) {
         console.log(error)
        }
+}
+
+export function userSignOutRoute(req: Request, res: Response){
+    try {
+        res.clearCookie("token")
+        return res.json({
+            message: "User logged out"
+        })
+    } catch (error) {
+        console.log(error)
+    }
 }

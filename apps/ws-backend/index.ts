@@ -18,12 +18,12 @@ const users: User[] = []
 
 function CheckUser (token: string) {
     try {
-        const decoded = jwt.verify(token,JWT_SECERET)
+        const decoded = jwt.verify(token,JWT_SECERET) as JwtPayload;
         if(!decoded){
             return null;
         }
     
-        return decoded
+        return decoded.userId
     } catch (error) {
         console.log(error)
         return null
@@ -49,6 +49,7 @@ wss.on('connection', function connection(ws,request) {
     }
     
     const UserId = CheckUser(token)
+    console.log("UserId:",UserId)
     if(!UserId){
         console.log("user Disconected")
         ws.close()

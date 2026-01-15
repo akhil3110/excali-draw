@@ -1,9 +1,7 @@
 "use client";
 
 import { useSockets } from "@/hooks/useSockets";
-import { parse } from "path";
 import { useEffect, useState } from "react";
-import { json } from "stream/consumers";
 
 interface ChatRoomClientProps {
     messages: {message: string}[];
@@ -29,21 +27,20 @@ export function ChatRoomClient({
                 roomId: id
             }))
 
-            socket.onmessage = (event) => {
-                const rawData = event.data;
-
-        console.log("WebSocket message event:", rawData);
-
-        try {
-          const parsedData = JSON.parse(event.data);
-
-          if (parsedData.type === "chat") {
-           setChats(c => [...c, { message: parsedData.message }])
-          }
-        } catch (error) {
-          console.error("Error parsing message:", error, rawData);
-        }
+            const handler = (event: MessageEvent) => {
+                try {
+                    const parsedData = JSON.parse(event.data)
+                    if (parsedData.type === "chat") {
+                        setChats(c => [...c, { message: parsedData.message }])
+                    }
+                } catch {}
             }
+
+            socket.addEventListener("message", handler)
+
+            return () => {
+                socket.removeEventListener("message", handler)
+             }
         }
 
     },[socket,loading,id])

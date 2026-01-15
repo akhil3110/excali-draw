@@ -6,23 +6,25 @@ import { JWT_SECERET } from "@repo/backend-common/secret";
 export function middleware(req: Request,res: Response,next: NextFunction){
 
     try {
-        const token = req.headers["authorization"]; 
-
-        if(!token){
-            return res.status(403).json({
-                message: "Token Missing"
-            })
+        let token = req.cookies?.token;
+        
+        if(!token && req.headers["authorization"]){
+            token = req.headers["authorization"]; 
         }
 
-        const decoded = jwt.verify(token,JWT_SECERET) as string | JwtPayload;
+        if (!token) {
+            return res.status(401).json({ message: "Token missing adad" });
+        }
 
-        //@ts-expect-error: request userId assignment
-        req.userId = decoded;
+        const decoded = jwt.verify(token,JWT_SECERET) as JwtPayload;
+
+        req.userId = decoded.userId;
         
         return next()
 
     } catch (error) {
-        return   res.status(403).json({
+        console.log(error)
+        return  res.status(403).json({
                     message: "Unauthorized middleware"
                 })
     }
