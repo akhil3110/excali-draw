@@ -119,7 +119,7 @@ wss.on('connection', function connection(ws,request) {
                 }
             })
 
-            pushMessage(payload);
+            // pushMessage(payload);
             } catch (error) {
                 console.log("chat:",error)
             }
