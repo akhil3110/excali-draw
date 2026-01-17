@@ -1,10 +1,11 @@
 import Dashboard from "@/components/dashboard/Dashboard";
-import { getName } from "@/lib/getDetails";
+import { getName, getUserId } from "@/lib/getDetails";
 import { cookies } from "next/headers";
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get("token")?.value;
+  
 
   console.log("Dashboard token:", token);
   if(!token){
@@ -12,7 +13,8 @@ export default async function DashboardPage() {
   }
 
   const name = getName(token)
+  const userId = getUserId(token!);
   return (
-    <Dashboard name={name} />
+    <Dashboard name={name} token={token} userId={userId} />
   )
 }

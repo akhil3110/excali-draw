@@ -32,6 +32,22 @@ export const chat = pgTable('chat', {
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().$onUpdate(() => new Date()),
 })
 
+export const canvas = pgTable('canvas',{
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    name: varchar({length:255}).notNull(),
+    userId: text('user_id').notNull().references(() => user.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().$onUpdate(() => new Date()),
+})
+
+export const shapes = pgTable('shapes',{
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    canvasId: integer('canvas_id').notNull().references(() => canvas.id),
+    name: varchar({length:255}).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().$onUpdate(() => new Date()),
+})
+
 export const userRelations = relations(user,({many}) =>({
     rooms: many(room),
     chat: many(chat)
@@ -39,7 +55,7 @@ export const userRelations = relations(user,({many}) =>({
 
 export const roomRelation = relations(room,({one,many}) => ({
     admin: one(user, {
-        fields: [room.id],
+        fields: [room.adminId],
         references: [user.id]
     }),
     chats: many(chat)
@@ -47,11 +63,18 @@ export const roomRelation = relations(room,({one,many}) => ({
 
 export const chatRelation = relations(chat, ({one,many}) => ({
     user: one(user, {
-        fields: [chat.id],
+        fields: [chat.userId],
         references: [user.id]
     }),
     room: one(room,{
         fields: [chat.roomId],
         references: [room.id]
     })
+}))
+
+export const canvasRelation = relations(canvas, ({one,many}) => ({
+    user: one(user, {
+        fields: [canvas.userId],
+        references: [user.id]
+    }),
 }))

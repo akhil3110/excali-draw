@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import LogoutModal from "../modals/LogoutModal";
+import CreateRoomModal from "../modals/CreateRoomModal";
 
 const ModalProider = () => {
 
@@ -15,6 +16,7 @@ const ModalProider = () => {
     return (
         <>
             <LogoutModal />
+            <CreateRoomModal />
         </>
     )
 }

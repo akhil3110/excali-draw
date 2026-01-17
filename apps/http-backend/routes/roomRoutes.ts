@@ -35,10 +35,10 @@ export async function createRoomRoute(req: Request, res:Response){
         const newRoom = await db.insert(room).values({
             slug: data.data.name,
             adminId: req.userId
-        })
+        }).returning({id:room.id})
         
         return res.json({
-            roomId: newRoom.oid
+            roomId: newRoom[0]!.id
         })
     } catch (error) {
         console.log(error)

@@ -2,6 +2,8 @@
 import { Home, FolderOpen, Star, Clock, Users, Settings, HelpCircle, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import useModalStore from "@/store/modal-store";
 
 interface SidebarItem {
   icon: React.ReactNode;
@@ -13,10 +15,13 @@ interface SidebarItem {
 interface DashboardSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  token?: string | null;
+  userId?: string | null;
 }
 
-const DashboardSidebar = ({ isOpen, onClose }: DashboardSidebarProps) => {
+const DashboardSidebar = ({ isOpen, onClose, token, userId }: DashboardSidebarProps) => {
 
+   const {onOpen} = useModalStore();
   const router = useRouter()
   const mainItems: SidebarItem[] = [
     { icon: <Home className="w-5 h-5" />, label: "Home", active: true },
@@ -31,6 +36,20 @@ const DashboardSidebar = ({ isOpen, onClose }: DashboardSidebarProps) => {
     { icon: <Settings className="w-5 h-5" />, label: "Settings" },
     { icon: <HelpCircle className="w-5 h-5" />, label: "Help & Support" },
   ];
+
+  function handleStartDrawing() {
+    try {
+      
+      if(!token || !userId) {
+        return toast.error("Please login to start drawing!");
+      }
+
+      onOpen("create-room-modal",{userId})
+
+    } catch (error) {
+      
+    }
+  }
 
   return (
     <>
@@ -67,7 +86,7 @@ const DashboardSidebar = ({ isOpen, onClose }: DashboardSidebarProps) => {
 
         {/* New Board Button */}
         <div className="p-4">
-          <Button className="w-full bg-[hsl(174,72%,56%)] hover:bg-[hsl(174,72%,46%)] text-[hsl(222,47%,11%)] font-semibold gap-2">
+          <Button onClick={handleStartDrawing} className="w-full bg-[hsl(174,72%,56%)] hover:bg-[hsl(174,72%,46%)] text-[hsl(222,47%,11%)] font-semibold gap-2">
             <Plus className="w-5 h-5" />
             New Board
           </Button>

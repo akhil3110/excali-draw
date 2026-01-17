@@ -18,15 +18,17 @@ const whiteboards = [
 ];
 
 const Dashboard = ({
-  name
-}: { name: string }) => {
+  name,
+  token,
+  userId
+}: { name: string, token: string, userId: string }) => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="h-full w-full bg-[hsl(222,47%,11%)]">
       {/* Sidebar */}
-      <DashboardSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <DashboardSidebar userId={userId} token={token} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content */}
       <div className="lg:ml-64">

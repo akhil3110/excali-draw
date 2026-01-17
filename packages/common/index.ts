@@ -15,3 +15,6 @@ export const CreateRoomSchema =  z.object({
     name: z.string()
 })
 
+export const CreateCanvasSchema =  z.object({
+    name: z.string()
+})

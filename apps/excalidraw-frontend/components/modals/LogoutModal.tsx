@@ -29,7 +29,7 @@ const LogoutModal = () => {
         router.push("/")
         router.refresh()
         onClose()
-    }
+    }  
   
     return (
       <Dialog open={isModalOpen} onOpenChange={onClose}>

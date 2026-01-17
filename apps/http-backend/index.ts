@@ -7,6 +7,7 @@ import { getAllUsersRoute, userSignInRoute, userSignOutRoute, userSignUpRoute } 
 import { createRoomRoute, getAllRoomsRoute, getRoomRoute } from "./routes/roomRoutes";
 import { getRoomChatsRoute } from "./routes/chatRoutes";
 import cookieParser from "cookie-parser";
+import { createCanvasRoute, deleteCanvasRoute, getAllCanvasRoute } from "./routes/canvasRoutes";
 
 
 const app = express();
@@ -37,6 +38,11 @@ app.get("/rooms/:roomId",getRoomRoute )
 
 //chat routes
 app.get("/chats/:roomId",getRoomChatsRoute)
+
+//canvas routes
+app.post("/create-canvas",middleware,createCanvasRoute)
+app.get("/canvas", middleware,getAllCanvasRoute)
+app.delete("/canvas/:id",middleware,deleteCanvasRoute)
 
 
 app.listen(port, () => {

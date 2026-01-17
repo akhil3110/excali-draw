@@ -1,7 +1,38 @@
+"use client";
 import { Button } from "@/components/ui/button";
+import useModalStore from "@/store/modal-store";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
-const HeroSection = () => {
+interface HeroSection {
+  token?: string | null;
+  userId?: string | null;
+}
+
+
+const HeroSection = ({
+  token,
+  userId
+}: HeroSection) => {
+
+  const {onOpen} = useModalStore();
+  const router = useRouter()
+
+  function handleStartDrawing() {
+    try {
+      
+      if(!token || !userId) {
+        return toast.error("Please login to start drawing!");
+      }
+
+      onOpen("create-room-modal",{userId})
+
+    } catch (error) {
+      
+    }
+  }
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -20%, hsl(174,72%,56%,0.15), transparent)' }}>
       {/* Decorative elements */}
@@ -44,13 +75,15 @@ const HeroSection = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in"
             style={{ animationDelay: '0.3s' }}
           >
-            <Button variant="hero" size="xl">
+            <Button onClick={handleStartDrawing} variant="hero" size="xl">
               Start Drawing
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button variant="hero-outline" size="xl">
-              View Demo
-            </Button>
+            {token && (
+              <Button onClick={() => router.push("/dashboard")} variant="hero-outline" size="xl">
+                Dashboard
+              </Button>
+            )}
           </div>
 
           {/* Stats */}
