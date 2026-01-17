@@ -49,7 +49,13 @@ export async function userSignInRoute(req: Request, res: Response){
         
     
         // check user password and get userId   
-        const token = jwt.sign({userId: UserExist.id},JWT_SECERET,{expiresIn: "7d"})
+        const token = jwt.sign({
+                userId: UserExist.id,
+                name: UserExist.name,
+            },
+            JWT_SECERET,
+            {expiresIn: "7d"}
+        )
 
         res.cookie("token",token, {
             httpOnly: process.env.NODE_ENV === "production",
@@ -93,8 +99,15 @@ export async function userSignUpRoute(req: Request, res: Response){
             password: bcryptPassword
         })
     
-        
-        const token = jwt.sign({userId: NewUser.oid},JWT_SECERET,{expiresIn: "7d"})
+    
+
+        const token = jwt.sign({
+                userId: NewUser.oid,
+                name: userDetails.data.name
+            },
+            JWT_SECERET,
+            {expiresIn: "7d"}
+        )
 
 
         res.cookie("token",token, {

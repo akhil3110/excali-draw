@@ -25,10 +25,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className=" bg-[hsl(222,47%,11%)]">
-        <Providers>
-          {children}
-        </Providers>
+      <body>
+        <div  className=" bg-[hsl(222,47%,11%)] h-full min-h-screen w-full">
+          <Providers>
+            {children}
+          </Providers>
+        </div>
       </body>
     </html>
   );

@@ -1,0 +1,156 @@
+"use client";
+import { Home, FolderOpen, Star, Clock, Users, Settings, HelpCircle, Plus, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
+interface SidebarItem {
+  icon: React.ReactNode;
+  label: string;
+  count?: number;
+  active?: boolean;
+}
+
+interface DashboardSidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const DashboardSidebar = ({ isOpen, onClose }: DashboardSidebarProps) => {
+
+  const router = useRouter()
+  const mainItems: SidebarItem[] = [
+    { icon: <Home className="w-5 h-5" />, label: "Home", active: true },
+    { icon: <FolderOpen className="w-5 h-5" />, label: "All Boards", count: 24 },
+    { icon: <Star className="w-5 h-5" />, label: "Favorites", count: 5 },
+    { icon: <Clock className="w-5 h-5" />, label: "Recent", count: 12 },
+    { icon: <Users className="w-5 h-5" />, label: "Shared with me", count: 8 },
+    { icon: <Trash2 className="w-5 h-5" />, label: "Trash" },
+  ];
+
+  const bottomItems: SidebarItem[] = [
+    { icon: <Settings className="w-5 h-5" />, label: "Settings" },
+    { icon: <HelpCircle className="w-5 h-5" />, label: "Help & Support" },
+  ];
+
+  return (
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`w-64 h-screen bg-[hsl(222,47%,14%)] border-r border-[hsl(222,47%,25%)] flex flex-col fixed left-0 top-0 z-50 transition-transform duration-300 lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Logo */}
+        <div  className="p-6 border-b border-[hsl(222,47%,25%)] flex items-center justify-between cursor-pointer">
+          <div onClick={() => router.push("/")} className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(174,72%,56%)] to-[hsl(270,60%,65%)] flex items-center justify-center">
+              <span className="text-[hsl(222,47%,11%)] font-bold text-lg">S</span>
+            </div>
+            <span className="text-xl font-bold text-[hsl(210,40%,98%)]">SketchFlow</span>
+          </div>
+          {/* Close button for mobile */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 rounded-lg text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] hover:bg-[hsl(222,47%,20%)] transition-all duration-200"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* New Board Button */}
+        <div className="p-4">
+          <Button className="w-full bg-[hsl(174,72%,56%)] hover:bg-[hsl(174,72%,46%)] text-[hsl(222,47%,11%)] font-semibold gap-2">
+            <Plus className="w-5 h-5" />
+            New Board
+          </Button>
+        </div>
+
+        {/* Main Navigation */}
+        <nav className="flex-1 px-3 py-2 overflow-y-auto">
+          <ul className="space-y-1">
+            {mainItems.map((item, index) => (
+              <li key={index}>
+                <button
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                    item.active
+                      ? "bg-[hsl(174,72%,56%)]/10 text-[hsl(174,72%,56%)]"
+                      : "text-[hsl(215,20%,65%)] hover:bg-[hsl(222,47%,20%)] hover:text-[hsl(210,40%,98%)]"
+                  }`}
+                >
+                  {item.icon}
+                  <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
+                  {item.count !== undefined && (
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      item.active 
+                        ? "bg-[hsl(174,72%,56%)]/20 text-[hsl(174,72%,56%)]" 
+                        : "bg-[hsl(222,47%,20%)] text-[hsl(215,20%,65%)]"
+                    }`}>
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* Folders Section */}
+          <div className="mt-8">
+            <div className="flex items-center justify-between px-3 mb-2">
+              <span className="text-xs font-semibold text-[hsl(215,20%,65%)] uppercase tracking-wider">Folders</span>
+              <button className="text-[hsl(215,20%,65%)] hover:text-[hsl(174,72%,56%)] transition-colors">
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            <ul className="space-y-1">
+              {["Projects", "Personal", "Work", "Archive"].map((folder, index) => (
+                <li key={index}>
+                  <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[hsl(215,20%,65%)] hover:bg-[hsl(222,47%,20%)] hover:text-[hsl(210,40%,98%)] transition-all duration-200">
+                    <FolderOpen className="w-4 h-4" />
+                    <span className="text-sm">{folder}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </nav>
+
+        {/* Bottom Navigation */}
+        <div className="p-3 border-t border-[hsl(222,47%,25%)]">
+          <ul className="space-y-1">
+            {bottomItems.map((item, index) => (
+              <li key={index}>
+                <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[hsl(215,20%,65%)] hover:bg-[hsl(222,47%,20%)] hover:text-[hsl(210,40%,98%)] transition-all duration-200">
+                  {item.icon}
+                  <span className="text-sm font-medium">{item.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* User Profile */}
+        <div className="p-4 border-t border-[hsl(222,47%,25%)]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[hsl(270,60%,65%)] to-[hsl(174,72%,56%)] flex items-center justify-center">
+              <span className="text-[hsl(210,40%,98%)] font-semibold text-sm">JD</span>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-[hsl(210,40%,98%)]">John Doe</p>
+              <p className="text-xs text-[hsl(215,20%,65%)]">Pro Plan</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+};
+
+export default DashboardSidebar;

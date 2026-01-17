@@ -1,49 +1,27 @@
-"use client"
-import { Button } from "@/components/ui/button";
-import { draw } from "@/draw";
-import { useEffect, useRef } from "react";
-import { useParams } from 'next/navigation'
-import { useSockets } from "@/hooks/useSockets";
+import CanvasBoard from "@/components/CanvasBoard";
+import { cookies } from "next/headers";
 
-const Canvas = () => {
+const Canvas = async ({
+    params
+}: {
+     params: Promise<{ canvasId: string }>;
+}) => {
+    const cookieStore = await cookies()
+    const token = cookieStore.get("token")?.value;
 
-    const canvasRef = useRef<HTMLCanvasElement>(null)
-    const params = useParams<{ canvasId: string }>()
-    const {socket,loading} = useSockets()
+    const {canvasId} = await params;
+    console.log("Canvas ID:", canvasId);
 
-    useEffect(() => {
-        if (!canvasRef.current) return;
-        if (!socket) return;
-        if (!params.canvasId) return;
-        
-        
-        const canvas = canvasRef.current;
-        draw(canvas,params.canvasId,socket!);
-
-        socket.send(JSON.stringify({
-            type: 'join_room',
-            roomId: params.canvasId
-        }))
-
-    },[socket,canvasRef])
-
-    if(!params.canvasId){
+    if(!canvasId){
         return <div>No Canvas ID Provided</div>
     }
 
-    if(loading){
-        return <div>Loading...</div>
+    if(!token){
+        return <div>Please log in to access the canvas.</div>
     }
 
     return ( 
-        <div className="relative">
-            <div>{params.canvasId}</div>
-            <canvas ref={canvasRef} className="bg-white" width={1080} height={600}></canvas>
-            <div className="fixed top-16 bg-white p-5 right-[50%] translate-x-1/2 rounded-md shadow-md flex flex-row gap-x-2 items-center">
-                <Button>Rectangle</Button>
-                <Button>Circle</Button>
-            </div>
-        </div>
+        <CanvasBoard canvasId={canvasId} token={token} />
      );
 }
  

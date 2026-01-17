@@ -26,6 +26,7 @@ const LogoutModal = () => {
           withCredentials: true
         });
         setIsLoading(false)
+        router.push("/")
         router.refresh()
         onClose()
     }

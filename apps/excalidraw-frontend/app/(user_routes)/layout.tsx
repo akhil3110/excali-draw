@@ -11,6 +11,10 @@ const UserLayout = async ({
     const cookieStore = await cookies()
     const token = cookieStore.get("token")?.value;
 
+    if (!token) {
+        redirect("/auth/sign-in");
+    }
+
     return (
         <div className="min-h-screen">
             <Navbar token={token} />
