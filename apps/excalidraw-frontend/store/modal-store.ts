@@ -1,10 +1,10 @@
-import { data } from "react-router-dom"
 import {create} from "zustand"
 
-export type ModalType = "logout-modal" | "create-room-modal"
+export type ModalType = "logout-modal" | "create-room-modal" | "delte-canvas-modal"
 
 interface ModalData {
     userId?: string
+    canvasId?: number
 }
 
 interface ModalStore {

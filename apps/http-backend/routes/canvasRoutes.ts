@@ -87,10 +87,15 @@ export async function deleteCanvasRoute(req: Request, res: Response) {
             }).status(403)
         }
 
-        await db.delete(canvas).where(eq(canvas.id,canvasExist.id))
+        const remainingCanvas = await db.transaction(async (tx) => {
+            await tx.delete(canvas).where(eq(canvas.id,canvasExist.id))
 
+            return await tx.select().from(canvas).where(eq(canvas.userId,req.userId!))
+        })
+
+        await db.delete(canvas).where(eq(canvas.id,canvasExist.id)).returning()
         return res.json({
-            message: "Canvas deleted successfully"
+            canvas: remainingCanvas
         })
         
     } catch (error) {

@@ -1,21 +1,27 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import StatsCards from "@/components/dashboard/StatsCards";
 import WhiteboardCard from "@/components/dashboard/WhiteboardCard";
 import { Grid, List } from "lucide-react";
+import useWhiteBoardStore from "@/store/whiteBoard-store";
+import { backendUrl } from "@/config";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-const whiteboards = [
-  { id: 1, title: "Product Roadmap 2024", lastEdited: "5 min ago", collaborators: 4, isFavorite: true, isShared: true },
-  { id: 2, title: "User Flow Diagram", lastEdited: "2 hours ago", collaborators: 2, isFavorite: false, isShared: true },
-  { id: 3, title: "Design System", lastEdited: "Yesterday", collaborators: 6, isFavorite: true, isShared: false },
-  { id: 4, title: "Sprint Planning", lastEdited: "2 days ago", collaborators: 8, isFavorite: false, isShared: true },
-  { id: 5, title: "API Architecture", lastEdited: "3 days ago", collaborators: 3, isFavorite: false, isShared: false },
-  { id: 6, title: "Marketing Campaign", lastEdited: "1 week ago", collaborators: 5, isFavorite: true, isShared: true },
-  { id: 7, title: "Wireframes v2", lastEdited: "1 week ago", collaborators: 2, isFavorite: false, isShared: false },
-  { id: 8, title: "Brainstorming Session", lastEdited: "2 weeks ago", collaborators: 10, isFavorite: false, isShared: true },
-];
+// const whiteboards = [
+//   { id: 1, title: "Product Roadmap 2024", lastEdited: "5 min ago", collaborators: 4, isFavorite: true, isShared: true },
+//   { id: 2, title: "User Flow Diagram", lastEdited: "2 hours ago", collaborators: 2, isFavorite: false, isShared: true },
+//   { id: 3, title: "Design System", lastEdited: "Yesterday", collaborators: 6, isFavorite: true, isShared: false },
+//   { id: 4, title: "Sprint Planning", lastEdited: "2 days ago", collaborators: 8, isFavorite: false, isShared: true },
+//   { id: 5, title: "API Architecture", lastEdited: "3 days ago", collaborators: 3, isFavorite: false, isShared: false },
+//   { id: 6, title: "Marketing Campaign", lastEdited: "1 week ago", collaborators: 5, isFavorite: true, isShared: true },
+//   { id: 7, title: "Wireframes v2", lastEdited: "1 week ago", collaborators: 2, isFavorite: false, isShared: false },
+//   { id: 8, title: "Brainstorming Session", lastEdited: "2 weeks ago", collaborators: 10, isFavorite: false, isShared: true },
+// ];
+
+
+ 
 
 const Dashboard = ({
   name,
@@ -24,6 +30,37 @@ const Dashboard = ({
 }: { name: string, token: string, userId: string }) => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const {whiteboards, setWhiteboards} = useWhiteBoardStore()
+  
+
+  useEffect(() => {
+
+    async function getWhiteBoard(){
+      try {
+        const data = await axios.get(`${backendUrl}/canvas`,{
+          withCredentials: true,
+        })
+        
+        if(!data.data){
+          toast.error("Something went wrong")
+          return
+        }
+        console.log(data.data)
+
+        setWhiteboards(data.data.canvases)
+
+      } catch (error) {
+        console.log(error)
+      }
+
+    }
+
+    getWhiteBoard()
+
+  },[])
+
+
 
   return (
     <div className="h-full w-full bg-[hsl(222,47%,11%)]">
@@ -80,9 +117,6 @@ const Dashboard = ({
                   <List className="w-4 h-4" />
                 </button>
               </div>
-              <button className="text-sm text-[hsl(174,72%,56%)] hover:text-[hsl(174,72%,66%)] transition-colors">
-                View all
-              </button>
             </div>
           </div>
           
@@ -94,9 +128,10 @@ const Dashboard = ({
             {whiteboards.map((board) => (
               <WhiteboardCard
                 key={board.id}
-                title={board.title}
+                id={board.id}
+                title={board.name}
                 lastEdited={board.lastEdited}
-                collaborators={board.collaborators}
+                collaborators={50}
                 isFavorite={board.isFavorite}
                 isShared={board.isShared}
               />

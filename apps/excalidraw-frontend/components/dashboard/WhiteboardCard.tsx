@@ -1,6 +1,12 @@
-import { MoreHorizontal, Star, Users, Clock } from "lucide-react";
-
+"use client"
+import { MoreHorizontal, Star, Users, Clock, Trash, UserRoundPlus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
+import useModalStore from "@/store/modal-store";
+import useWhiteBoardStore from "@/store/whiteBoard-store";
+import ActionTooltip from "../action-tooltip";
 interface WhiteboardCardProps {
+  id: number;
   title: string;
   thumbnail?: string;
   lastEdited: string;
@@ -10,14 +16,22 @@ interface WhiteboardCardProps {
 }
 
 const WhiteboardCard = ({
+  id,
   title,
   lastEdited,
   collaborators,
   isFavorite = false,
   isShared = false,
 }: WhiteboardCardProps) => {
+
+  const router = useRouter()
+  const {onOpen} = useModalStore()
+  
+
   return (
-    <div className="group bg-[hsl(222,47%,14%)] border border-[hsl(222,47%,25%)] rounded-xl overflow-hidden hover:border-[hsl(174,72%,56%)]/50 hover:shadow-lg hover:shadow-[hsl(174,72%,56%)]/5 transition-all duration-300 cursor-pointer">
+    <div
+      className="group bg-[hsl(222,47%,14%)] border border-[hsl(222,47%,25%)] rounded-xl overflow-hidden hover:border-[hsl(174,72%,56%)]/50 hover:shadow-lg hover:shadow-[hsl(174,72%,56%)]/5 transition-all duration-300 cursor-pointer"
+    >
       {/* Thumbnail */}
       <div className="h-40 bg-[hsl(222,47%,18%)] relative overflow-hidden">
         {/* Sketch Preview Placeholder */}
@@ -29,7 +43,7 @@ const WhiteboardCard = ({
         </svg>
         
         {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-[hsl(222,47%,11%)]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+        <div onClick={() => router.push(`/canvas/${id}`)} className="absolute inset-0 bg-[hsl(222,47%,11%)]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
           <span className="px-4 py-2 bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)] font-semibold rounded-lg">
             Open Board
           </span>
@@ -37,18 +51,18 @@ const WhiteboardCard = ({
 
         {/* Actions */}
         <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button
-            className={`p-1.5 rounded-lg backdrop-blur-sm transition-colors ${
-              isFavorite
-                ? "bg-[hsl(45,93%,47%)]/20 text-[hsl(45,93%,47%)]"
-                : "bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(45,93%,47%)]"
-            }`}
-          >
-            <Star className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} />
-          </button>
-          <button className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors">
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
+          <div className="flex flex-col gap-y-2">
+            <ActionTooltip label="Add members">
+              <Button onClick={() =>onOpen("delte-canvas-modal",{canvasId:id })} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
+                <UserRoundPlus className="w-4 h-4" />
+              </Button>
+            </ActionTooltip>
+            <ActionTooltip label="Delete canvas" side="bottom">
+              <Button onClick={() =>onOpen("delte-canvas-modal",{canvasId:id })} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
+                <Trash className="w-4 h-4" />
+            </Button>
+            </ActionTooltip>
+          </div>
         </div>
 
         {/* Shared Badge */}
@@ -66,7 +80,7 @@ const WhiteboardCard = ({
         <h3 className="text-[hsl(210,40%,98%)] font-semibold mb-2 truncate">{title}</h3>
         <div className="flex items-center justify-between text-xs text-[hsl(215,20%,65%)]">
           <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5" />
+            <Clock className="w-3.5 h-3.5" /> dad
             <span>{lastEdited}</span>
           </div>
           {collaborators > 0 && (
