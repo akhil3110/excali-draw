@@ -1,5 +1,5 @@
 
-import { integer, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2'
 import { relations } from 'drizzle-orm';
 
@@ -35,7 +35,8 @@ export const chat = pgTable('chat', {
 export const canvas = pgTable('canvas',{
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     name: varchar({length:255}).notNull(),
-    userId: text('user_id').notNull().references(() => user.id),
+    usersId: text('user_id').references(() => user.id),
+    adminId: text('admin_id').notNull().references(() => user.id),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().$onUpdate(() => new Date()),
 })
@@ -46,6 +47,11 @@ export const shapes = pgTable('shapes',{
     name: varchar({length:255}).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().$onUpdate(() => new Date()),
+})
+export const canvasUsers = pgTable('canvas_users',{
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    canvasId: integer('canvas_id').notNull().references(() => canvas.id, { onDelete: 'cascade' }),
+    memberId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 })
 
 export const userRelations = relations(user,({many}) =>({
@@ -72,9 +78,23 @@ export const chatRelation = relations(chat, ({one,many}) => ({
     })
 }))
 
+
+
 export const canvasRelation = relations(canvas, ({one,many}) => ({
-    user: one(user, {
-        fields: [canvas.userId],
+    admin: one(user, {
+        fields: [canvas.adminId],
         references: [user.id]
     }),
+    canvasUsers: many(canvasUsers)
+}))
+
+export const canvasUserRelation = relations(canvasUsers,({one}) => ({
+    canvas: one(canvas,{
+        fields: [canvasUsers.canvasId],
+        references: [canvas.id]
+    }),
+    user: one(user,{
+        fields: [canvasUsers.memberId],
+        references: [user.id]
+    })
 }))

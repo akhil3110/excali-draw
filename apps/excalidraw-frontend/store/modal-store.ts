@@ -1,6 +1,6 @@
 import {create} from "zustand"
 
-export type ModalType = "logout-modal" | "create-room-modal" | "delte-canvas-modal"
+export type ModalType = "logout-modal" | "create-room-modal" | "delte-canvas-modal" | "join-canvas-modal" | "addMember-canvas-modal"
 
 interface ModalData {
     userId?: string

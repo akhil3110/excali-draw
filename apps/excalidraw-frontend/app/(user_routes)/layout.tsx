@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import Navbar from "@/components/Navbar";
 import { Metadata } from "next";
+import { verifyToken } from "@/lib/verifyToken";
+import toast from "react-hot-toast";
 
 
 
@@ -18,7 +20,13 @@ const UserLayout = async ({
         redirect("/auth/sign-in");
     }
 
+    const tokenVerified = verifyToken(token);
    
+    if(!tokenVerified){
+        cookieStore.delete("token")
+        toast.success("Your token has expired. Please sign in again.")
+        redirect("/auth/sign-in");
+    }
 
     return (
         <div className="h-full">

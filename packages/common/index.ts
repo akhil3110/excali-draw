@@ -18,3 +18,8 @@ export const CreateRoomSchema =  z.object({
 export const CreateCanvasSchema =  z.object({
     name: z.string()
 })
+
+export const AddUsersToCanvasSchema =  z.object({
+    memberId: z.string().nullable().default(null),
+    email: z.string().nullable().default(null),
+})

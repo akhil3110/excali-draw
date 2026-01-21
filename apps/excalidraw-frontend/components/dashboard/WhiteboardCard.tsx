@@ -8,8 +8,6 @@ import ActionTooltip from "../action-tooltip";
 interface WhiteboardCardProps {
   id: number;
   title: string;
-  thumbnail?: string;
-  lastEdited: string;
   collaborators: number;
   isFavorite?: boolean;
   isShared?: boolean;
@@ -18,7 +16,6 @@ interface WhiteboardCardProps {
 const WhiteboardCard = ({
   id,
   title,
-  lastEdited,
   collaborators,
   isFavorite = false,
   isShared = false,
@@ -26,7 +23,7 @@ const WhiteboardCard = ({
 
   const router = useRouter()
   const {onOpen} = useModalStore()
-  
+  console.log(id, "id")
 
   return (
     <div
@@ -53,7 +50,7 @@ const WhiteboardCard = ({
         <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="flex flex-col gap-y-2">
             <ActionTooltip label="Add members">
-              <Button onClick={() =>onOpen("delte-canvas-modal",{canvasId:id })} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
+              <Button onClick={() =>onOpen("addMember-canvas-modal",{canvasId:id })} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
                 <UserRoundPlus className="w-4 h-4" />
               </Button>
             </ActionTooltip>
@@ -77,14 +74,10 @@ const WhiteboardCard = ({
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-[hsl(210,40%,98%)] font-semibold mb-2 truncate">{title}</h3>
-        <div className="flex items-center justify-between text-xs text-[hsl(215,20%,65%)]">
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5" /> dad
-            <span>{lastEdited}</span>
-          </div>
+        <div className="flex flex-row justify-between">
+          <h3 className="text-[hsl(210,40%,98%)] font-semibold mb-2 truncate">{title}</h3>
           {collaborators > 0 && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 text-xs text-[hsl(215,20%,65%)]">
               <Users className="w-3.5 h-3.5" />
               <span>{collaborators}</span>
             </div>

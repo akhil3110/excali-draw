@@ -52,6 +52,7 @@ export async function userSignInRoute(req: Request, res: Response){
         const token = jwt.sign({
                 userId: UserExist.id,
                 name: UserExist.name,
+                email: UserExist.email
             },
             JWT_SECERET,
             {expiresIn: "7d"}
@@ -97,13 +98,14 @@ export async function userSignUpRoute(req: Request, res: Response){
             email: userDetails.data.email,
             name: userDetails.data.name,
             password: bcryptPassword
-        })
+        }).returning({id: user.id})
     
     
 
         const token = jwt.sign({
-                userId: NewUser.oid,
-                name: userDetails.data.name
+                userId: NewUser[0]?.id,
+                name: userDetails.data.name,
+                email: userDetails.data.email
             },
             JWT_SECERET,
             {expiresIn: "7d"}

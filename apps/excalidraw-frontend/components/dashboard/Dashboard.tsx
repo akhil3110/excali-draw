@@ -8,6 +8,7 @@ import useWhiteBoardStore from "@/store/whiteBoard-store";
 import { backendUrl } from "@/config";
 import axios from "axios";
 import toast from "react-hot-toast";
+import useModalStore from "@/store/modal-store";
 
 // const whiteboards = [
 //   { id: 1, title: "Product Roadmap 2024", lastEdited: "5 min ago", collaborators: 4, isFavorite: true, isShared: true },
@@ -32,6 +33,7 @@ const Dashboard = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const {whiteboards, setWhiteboards} = useWhiteBoardStore()
+  const {onOpen} = useModalStore()
   
 
   useEffect(() => {
@@ -49,7 +51,6 @@ const Dashboard = ({
         console.log(data.data)
 
         setWhiteboards(data.data.canvases)
-
       } catch (error) {
         console.log(error)
       }
@@ -59,6 +60,10 @@ const Dashboard = ({
     getWhiteBoard()
 
   },[])
+
+  async function handleJoinCanvas(){
+    onOpen("join-canvas-modal")
+  }
 
 
 
@@ -94,7 +99,10 @@ const Dashboard = ({
           {/* Whiteboards Section */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-[hsl(210,40%,98%)]">Your Boards</h2>
-            <div className="flex flex-row gap-x-2">
+            <div className="flex flex-row gap-x-3">
+              <button onClick={handleJoinCanvas} className="text-sm text-[hsl(174,72%,56%)] hover:text-[hsl(174,72%,66%)] transition-colors hover:underline cursor-pointer">
+                Join Canvas
+              </button>
               <div className="hidden sm:flex items-center bg-[hsl(222,47%,20%)] rounded-md p-1">
                 <button
                   onClick={() => setViewMode("grid")}
@@ -126,12 +134,11 @@ const Dashboard = ({
               : "grid-cols-1"
           }`}>
             {whiteboards.map((board) => (
-              <WhiteboardCard
+              <WhiteboardCard 
                 key={board.id}
                 id={board.id}
                 title={board.name}
-                lastEdited={board.lastEdited}
-                collaborators={50}
+                collaborators={Number(board.canvasUsers.length+1)}
                 isFavorite={board.isFavorite}
                 isShared={board.isShared}
               />
