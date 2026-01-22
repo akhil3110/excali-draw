@@ -1,4 +1,6 @@
 import CanvasBoard from "@/components/CanvasBoard";
+import { getUserId } from "@/lib/getDetails";
+import { isUserMemberOrAdmin } from "@/lib/isUserMember";
 import { cookies } from "next/headers";
 
 const Canvas = async ({
@@ -10,7 +12,17 @@ const Canvas = async ({
     const token = cookieStore.get("token")?.value;
 
     const {canvasId} = await params;
-    console.log("Canvas ID:", canvasId);
+    const userId = getUserId(token!);
+
+
+    const hasAccess = await isUserMemberOrAdmin(
+        userId,
+        canvasId
+    );
+
+    if (!hasAccess) {
+        return <div>You are not authorized to access this canvas</div>;
+    }
 
     if(!canvasId){
         return <div>No Canvas ID Provided</div>

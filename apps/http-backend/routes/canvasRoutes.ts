@@ -2,7 +2,7 @@ import { AddUsersToCanvasSchema, CreateCanvasSchema } from "@repo/common/types";
 import { db } from "@repo/db/db";
 import { canvas, canvasUsers, chat, user } from "@repo/db/schema";
 import type { Request, Response } from "express";
-import { eq } from "drizzle-orm";
+import { and, eq, exists } from "drizzle-orm";
 
 
 export async function createCanvasRoute(req: Request,res: Response) {
@@ -151,8 +151,30 @@ export async function getAllCanvasRoute(req: Request, res: Response) {
                 }
             }
         })
+
+        const memberCanvas = await db.query.canvas.findMany({
+            where: (canvas,{eq}) => 
+                exists(
+                    db.select().from(canvasUsers).where(
+                        and(
+                            eq(canvasUsers.canvasId,canvas.id),
+                            eq(canvasUsers.memberId,req.userId!)
+                        )
+                    )
+                ),
+                with: {
+                    canvasUsers: true,
+                    admin: {
+                        columns: {
+                            email: true,
+                            name: true
+                        }
+                    }
+                }
+        })
         return res.json({
-            canvases
+            canvases,
+            memberCanvas
         })
     } catch (error) {
         console.log(error)

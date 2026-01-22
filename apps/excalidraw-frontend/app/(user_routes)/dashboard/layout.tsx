@@ -19,9 +19,9 @@ const DashboardLayout = async ({
 }) => {
    
     return (
-        <>
+        <div className="h-full w-full">
             {children}
-        </>
+        </div>
     )
 }
 

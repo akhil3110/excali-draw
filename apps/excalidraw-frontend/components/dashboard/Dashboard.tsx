@@ -9,6 +9,8 @@ import { backendUrl } from "@/config";
 import axios from "axios";
 import toast from "react-hot-toast";
 import useModalStore from "@/store/modal-store";
+import useMemberWhiteBoardStore from "@/store/memberWhiteBoard-store";
+import { div } from "motion/react-client";
 
 // const whiteboards = [
 //   { id: 1, title: "Product Roadmap 2024", lastEdited: "5 min ago", collaborators: 4, isFavorite: true, isShared: true },
@@ -33,6 +35,7 @@ const Dashboard = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const {whiteboards, setWhiteboards} = useWhiteBoardStore()
+  const {memberWhiteboards, setMemberWhiteboards} = useMemberWhiteBoardStore()
   const {onOpen} = useModalStore()
   
 
@@ -50,7 +53,14 @@ const Dashboard = ({
         }
         console.log(data.data)
 
-        setWhiteboards(data.data.canvases)
+        
+        if(data.data.canvases){
+          setWhiteboards(data.data.canvases)
+        }
+
+        if(data.data.memberCanvas){
+          setMemberWhiteboards(data.data.memberCanvas)
+        }
       } catch (error) {
         console.log(error)
       }
@@ -82,7 +92,7 @@ const Dashboard = ({
         />
 
         {/* Content Area */}
-        <main className="pt-16 p-4 lg:p-6">
+        <main className="pt-16 p-4 lg:p-6 scroll-auto">
           {/* Welcome Section */}
           <div className="mb-6 lg:mb-8">
             <h1 className="text-xl lg:text-2xl font-bold text-[hsl(210,40%,98%)] mb-1">
@@ -97,53 +107,87 @@ const Dashboard = ({
           <StatsCards /> */}
 
           {/* Whiteboards Section */}
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-[hsl(210,40%,98%)]">Your Boards</h2>
-            <div className="flex flex-row gap-x-3">
-              <button onClick={handleJoinCanvas} className="text-sm text-[hsl(174,72%,56%)] hover:text-[hsl(174,72%,66%)] transition-colors hover:underline cursor-pointer">
-                Join Canvas
-              </button>
-              <div className="hidden sm:flex items-center bg-[hsl(222,47%,20%)] rounded-md p-1">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-md transition-all duration-200 ${
-                    viewMode === "grid"
-                    ? "bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)]"
-                    : "text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)]"
-                  }`}
-                >
-                  <Grid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-md transition-all duration-200 ${
-                    viewMode === "list"
-                    ? "bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)]"
-                    : "text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)]"
-                  }`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
+          {whiteboards.length > 0 && (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[hsl(210,40%,98%)]">Your Boards</h2>
+                <div className="flex flex-row gap-x-3">
+                  <button onClick={handleJoinCanvas} className="text-sm text-[hsl(174,72%,56%)] hover:text-[hsl(174,72%,66%)] transition-colors hover:underline cursor-pointer">
+                    Join Canvas
+                  </button>
+                  <div className="hidden sm:flex items-center bg-[hsl(222,47%,20%)] rounded-md p-1">
+                    <button
+                      onClick={() => setViewMode("grid")}
+                      className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === "grid"
+                        ? "bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)]"
+                        : "text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)]"
+                      }`}
+                    >
+                      <Grid className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={`p-2 rounded-md transition-all duration-200 ${
+                        viewMode === "list"
+                        ? "bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)]"
+                        : "text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)]"
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+          
+              <div className={`grid gap-4 ${
+                viewMode === "grid" 
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+                : "grid-cols-1"
+                }`}>
+                  {whiteboards.map((board) => (
+                    <WhiteboardCard 
+                      key={board.id}
+                      id={board.id}
+                      title={board.name}
+                      collaborators={Number(board.canvasUsers.length+1)}
+                      isFavorite={board.isFavorite}
+                      isShared={board.isShared}
+                    />
+                  ))}
+              </div>
+            </>
+          )}
+
+          {/* Member Section */}
+          {memberWhiteboards.length > 0 && (
+            <div className=" mt-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[hsl(210,40%,98%)]">Boards you are a member of</h2>
+                <div className="flex flex-row gap-x-3">
+                
+                </div>
+              </div>
+          
+              <div className={`grid gap-4 ${
+                viewMode === "grid" 
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+                : "grid-cols-1"
+                }`}>
+                  {memberWhiteboards.map((board) => (
+                    <WhiteboardCard 
+                      key={board.id}
+                      id={board.id}
+                      title={board.name}
+                      collaborators={Number(board.canvasUsers.length+1)}
+                      isFavorite={board.isFavorite}
+                      isShared={board.isShared}
+                    />
+                  ))}
               </div>
             </div>
-          </div>
+          )}
           
-          <div className={`grid gap-4 ${
-            viewMode === "grid" 
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-              : "grid-cols-1"
-          }`}>
-            {whiteboards.map((board) => (
-              <WhiteboardCard 
-                key={board.id}
-                id={board.id}
-                title={board.name}
-                collaborators={Number(board.canvasUsers.length+1)}
-                isFavorite={board.isFavorite}
-                isShared={board.isShared}
-              />
-            ))}
-          </div>
         </main>
       </div>
     </div>

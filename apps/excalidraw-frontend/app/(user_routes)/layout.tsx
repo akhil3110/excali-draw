@@ -31,7 +31,7 @@ const UserLayout = async ({
     return (
         <div className="h-full">
             <Navbar token={token} />
-            <main className="relative h-full w-full flex items-center justify-center overflow-hidden pt-16 text-[hsl(215,20%,65%)]" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -20%, hsl(174,72%,56%,0.15), transparent)' }}>
+            <main className="pt-16 text-[hsl(215,20%,65%)]" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -20%, hsl(174,72%,56%,0.15), transparent)' }}>
                 {children}
             </main>
         </div>
