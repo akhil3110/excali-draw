@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 
 
 
-const UserLayout = async ({
+const CanvasLayout = async ({
     children
 }: {
     children: React.ReactNode
@@ -29,8 +29,7 @@ const UserLayout = async ({
     }
 
     return (
-        <div className="h-full">
-            <Navbar token={token} />
+        <div className="h-full w-full overflow-hidden">
             <main className="pt-16 text-[hsl(215,20%,65%)]" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -20%, hsl(174,72%,56%,0.15), transparent)' }}>
                 {children}
             </main>
@@ -38,4 +37,4 @@ const UserLayout = async ({
     )
 }
 
-export default UserLayout;
+export default CanvasLayout;

@@ -1,52 +1,70 @@
-"use client"
+"use client";
+
 import { draw } from "@/draw";
-import { useSockets } from "@/hooks/useSockets"
-import { useEffect, useRef } from "react"
-import { Button } from "./ui/button";
+import { useSockets } from "@/hooks/useSockets";
+import { useEffect, useRef, useState } from "react";
+import TopToolbar from "./TopToolbar";
 
-interface CanvasBoardProps {
-    canvasId: string;
-    token: string;
+
+type Shapes = {
+    type: 'rectangle' ;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+} | {
+    type: 'circle' ;
+    x: number;
+    y: number;
+    radius: number;
 }
 
-const CanvasBoard = ({ canvasId, token }: CanvasBoardProps) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null)
-    const {socket,loading} = useSockets(token)
 
-    useEffect(() => {
-        if (!canvasRef.current) return;
-        if (!socket) return;
-        if (!canvasId) return;
-        
-        
-        const canvas = canvasRef.current;
-        draw(canvas,canvasId,socket!);
+const CanvasBoard = ({ canvasId, token }: any) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { socket, loading } = useSockets(token);
+  const shapesRef = useRef<Shapes[]>([]);
+  
+  const [tool, setTool] = useState<"rectangle" | "circle">("rectangle");
 
-        socket.send(JSON.stringify({
-            type: 'join_room',
-            roomId: canvasId
-        }))
+  useEffect(() => {
+    if (!canvasRef.current || !socket) return;
 
-    },[socket,canvasRef])
+    const canvas = canvasRef.current;
 
-    if(!canvasId){
-        return <div>No Canvas ID Provided</div>
-    }
+    // resize ONCE
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
 
-    if(loading){
-        return <div>Loading...</div>
-    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
 
-    return ( 
-        <div className="relative">
-            <div>{canvasId}</div>
-            <canvas ref={canvasRef} className="bg-white" width={1080} height={600}></canvas>
-            <div className="fixed top-16 bg-white p-5 right-[50%] translate-x-1/2 rounded-md shadow-md flex flex-row gap-x-2 items-center">
-                <Button>Rectangle</Button>
-                <Button>Circle</Button>
-            </div>
-        </div>
-     );
-}
- 
+    // draw ONCE
+    const cleanup = draw(canvas, canvasId, socket, tool, shapesRef)
+
+    socket.send(
+      JSON.stringify({
+        type: "join_room",
+        roomId: canvasId,
+      })
+    );
+
+    return () => {
+     
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, [socket, tool, canvasId]);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div className="w-screen h-screen overflow-hidden">
+      <TopToolbar tool={tool} setTool={setTool} />
+      <canvas ref={canvasRef} className="absolute inset-0" />
+    </div>
+  );
+};
+
 export default CanvasBoard;

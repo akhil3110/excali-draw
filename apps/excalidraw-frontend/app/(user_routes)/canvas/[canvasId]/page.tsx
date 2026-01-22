@@ -33,7 +33,7 @@ const Canvas = async ({
     }
 
     return ( 
-        <CanvasBoard canvasId={canvasId} token={token} />
+        <CanvasBoard className="h-full w-full overflow-hidden" canvasId={canvasId} token={token} />
      );
 }
  
