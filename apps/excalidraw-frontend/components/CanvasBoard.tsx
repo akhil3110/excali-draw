@@ -7,25 +7,36 @@ import TopToolbar from "./TopToolbar";
 
 
 type Shapes = {
+    id: string
     type: 'rectangle' ;
     x: number;
     y: number;
     width: number;
     height: number;
 } | {
+    id: string
     type: 'circle' ;
     x: number;
     y: number;
     radius: number;
+} | {
+    id: string
+    type: 'arrow';
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
 }
+
 
 
 const CanvasBoard = ({ canvasId, token }: any) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { socket, loading } = useSockets(token);
   const shapesRef = useRef<Shapes[]>([]);
+  const selectedShapeIndexRef = useRef<number | null>(null);
   
-  const [tool, setTool] = useState<"rectangle" | "circle">("rectangle");
+  const [tool, setTool] = useState<"rectangle" | "circle" | "arrow" | "select" | "eraser">("select");
 
   useEffect(() => {
     if (!canvasRef.current || !socket) return;

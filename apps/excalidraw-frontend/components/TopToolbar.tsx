@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Square, Circle, ArrowLeft } from "lucide-react";
+import { Square, Circle, ArrowLeft, ArrowRight, ArrowDownRight, MousePointer, Eraser } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ActionTooltip from "./action-tooltip";
 
@@ -30,6 +30,16 @@ export default function TopToolbar({ tool, setTool }: any) {
         rounded-lg shadow-lg px-3 py-2
         flex gap-2 z-50"
       >
+        <ActionTooltip label="Select">
+            <Button
+                size="icon"
+                variant={tool === "select" ? "default" : "ghost"}
+                onClick={() => setTool("select")}
+            >
+                <MousePointer className="h-5 w-5" />
+            </Button>
+        </ActionTooltip>
+
         <ActionTooltip label="rectangle">
             <Button
                 size="icon"
@@ -47,6 +57,26 @@ export default function TopToolbar({ tool, setTool }: any) {
                 onClick={() => setTool("circle")}
             >
                 <Circle className="h-5 w-5" />
+            </Button>
+        </ActionTooltip>
+
+        <ActionTooltip label="arrow">
+            <Button
+                size="icon"
+                variant={tool === "arrow" ? "default" : "ghost"}
+                onClick={() => setTool("arrow")}
+            >
+                <ArrowDownRight className="h-5 w-5" />
+            </Button>
+        </ActionTooltip>
+
+        <ActionTooltip label="Eraser">
+            <Button
+                size="icon"
+                variant={tool === "eraser" ? "default" : "ghost"}
+                onClick={() => setTool("eraser")}
+            >
+                <Eraser className="h-5 w-5" />
             </Button>
         </ActionTooltip>
       </div>
