@@ -10,7 +10,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import useModalStore from "@/store/modal-store";
 import useMemberWhiteBoardStore from "@/store/memberWhiteBoard-store";
-import { div } from "motion/react-client";
 
 // const whiteboards = [
 //   { id: 1, title: "Product Roadmap 2024", lastEdited: "5 min ago", collaborators: 4, isFavorite: true, isShared: true },

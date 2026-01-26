@@ -1,9 +1,8 @@
 "use client"
-import { MoreHorizontal, Star, Users, Clock, Trash, UserRoundPlus } from "lucide-react";
+import { Users, Trash, UserRoundPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import useModalStore from "@/store/modal-store";
-import useWhiteBoardStore from "@/store/whiteBoard-store";
 import ActionTooltip from "../action-tooltip";
 interface WhiteboardCardProps {
   id: number;

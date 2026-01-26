@@ -12,7 +12,9 @@
     "@repo/db": "*"
   },
   "scripts": {
-    "dev": "bun index.ts"
+    "dev": "bun index.ts",
+    "build": "bun index.ts",
+    "start": "bun index.ts"
   },
   "peerDependencies": {
     "typescript": "^5"

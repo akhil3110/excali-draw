@@ -1,7 +1,7 @@
 "use server"
 import {db} from "@repo/db/db"
 import { canvasUsers } from "@repo/db/schema";
-import { and, eq, exists } from "drizzle-orm";
+import { and, exists } from "drizzle-orm";
 
 export async function isUserMemberOrAdmin(userId: string, canvasId: string) {
     try {

@@ -3,7 +3,6 @@ import useModalStore from "@/store/modal-store";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,

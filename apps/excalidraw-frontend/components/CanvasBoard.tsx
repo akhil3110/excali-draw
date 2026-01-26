@@ -26,6 +26,17 @@ type Shapes = {
     startY: number;
     endX: number;
     endY: number;
+} | {
+    id:string
+    type: "text";
+    x: number;
+    y: number;
+    text: string
+    fontSize: number;
+} | {
+    id: string
+    type: "pencil"
+    points: { x: number; y: number }[]
 }
 
 
@@ -36,7 +47,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
   const shapesRef = useRef<Shapes[]>([]);
   const selectedShapeIndexRef = useRef<number | null>(null);
   
-  const [tool, setTool] = useState<"rectangle" | "circle" | "arrow" | "select" | "eraser">("select");
+  const [tool, setTool] = useState<"rectangle" | "circle" | "arrow" | "select" | "eraser"| "text" | "pencil">("select");
 
   useEffect(() => {
     if (!canvasRef.current || !socket) return;

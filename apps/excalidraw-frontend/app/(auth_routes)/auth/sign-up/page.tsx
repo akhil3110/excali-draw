@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
 import { MoveLeftIcon } from "lucide-react"
 import Link from "next/link"
@@ -35,7 +34,7 @@ const formSchema = z.object({
     name: z.string().min(2, {
         message: "Please Enter Valid Name"
     }),
-    email: z.string().nonempty({
+    email: z.email().nonempty({
         message: "Please Enter valid Email"
     }),
     password: z.string().min(2, {

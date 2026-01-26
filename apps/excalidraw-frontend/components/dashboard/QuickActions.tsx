@@ -1,4 +1,4 @@
-import { Plus, Upload, FileText, Layout, Users, Wand2 } from "lucide-react";
+import { Plus, Upload, Layout, Users, Wand2 } from "lucide-react";
 
 const QuickActions = () => {
   const actions = [
