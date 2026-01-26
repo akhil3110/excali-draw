@@ -25,7 +25,7 @@ export async function userSignInRoute(req: Request, res: Response){
         if(!userDetails.success){
             return res.json({
                 message: "Invalid inputs"
-            }).status(403)
+            }).status(400)
         }
     
         const UserExist = await db.query.user.findFirst({
@@ -35,13 +35,13 @@ export async function userSignInRoute(req: Request, res: Response){
         if(!UserExist){
             return res.json({
                 message: "User Does not exist. Please signup !"
-            }).status(403)
+            }).status(401)
         }
     
         const passwordCompare = await bcrypt.compare(userDetails.data.password,UserExist.password)
     
         if(!passwordCompare){
-            return res.json({
+            return res.status(401).json({
                 message: "Incorect password! please enter correct password"
             })
         }

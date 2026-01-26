@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
-import { MoveLeftIcon } from "lucide-react"
+import { Eye, EyeOff, MoveLeftIcon } from "lucide-react"
 import Link from "next/link"
 import { email, z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/form"
 import axios from "axios"
 import { backendUrl } from "@/config"
+import { useState } from "react"
 
 
 const formSchema = z.object({
@@ -42,6 +43,7 @@ const formSchema = z.object({
 const Login = () => {
 
     const router = useRouter() 
+    const [showPassword, setShowPassword] = useState(false)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -52,19 +54,34 @@ const Login = () => {
     })
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+        try {
+            const user = await axios.put(
+                `${backendUrl}/sign-in`,
+                {
+                    email: values.email,
+                    password: values.password
+                },
+                {
+                    withCredentials: true
+                }
+            )
 
-        const user = await axios.put(`${backendUrl}/sign-in`, {
-            email: values.email,
-            password: values.password
-        },{
-            withCredentials: true
-        })
+            // ✅ redirect ONLY on success
+            return router.push("/")
+        } catch (error: any) {
+            // ✅ production-grade error handling
+            const message =
+                error?.response?.data?.message || "Invalid credentials"
 
-        console.log(user)
+            form.setError("root", {
+                type: "manual",
+                message
+            })
 
-        return router.push("/")
-    }
+            // ⛔ VERY IMPORTANT
+            return
+        }
+}
 
     return ( 
         <div className="h-full w-full flex flex-row justify-center items-center bg-[hsl(222,47%,14%)]">
@@ -136,12 +153,23 @@ const Login = () => {
                                         <FormItem>
                                             <FormLabel  className="text-[hsl(210,40%,98%)] font-semibold">Password</FormLabel>
                                             <FormControl>
-                                                <Input 
-                                                    className="text-[hsl(210,40%,98%)] font-semibold" 
-                                                    placeholder="Password" 
-                                                    type="password"
-                                                    {...field} 
-                                                />
+                                                <div className="relative">
+                                                    <Input 
+                                                        className="text-[hsl(210,40%,98%)] font-semibold" 
+                                                        placeholder="Password" 
+                                                        type={showPassword ? "text" : "password"}
+                                                        {...field} 
+                                                    />
+                                                    
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        className="absolute inset-y-0 right-3 flex items-center text-muted-foreground hover:text-white"
+                                                        tabIndex={-1}
+                                                    >
+                                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                    </button>
+                                                </div>
                                             </FormControl>
                                             <FormDescription>
                                                 Enter Your Password
@@ -154,6 +182,11 @@ const Login = () => {
                         </Form>
                     </CardContent>
                     <CardFooter className="flex-col gap-2">
+                        {form.formState.errors.root && (
+                            <p className="min-h-[20px]  text-sm font-medium text-red-500 text-center">
+                                {form.formState.errors.root.message}
+                            </p>
+                        )}
                         <Button 
                             form="login-form" 
                             variant="hero" 

@@ -77,8 +77,10 @@ wss.on('connection', function connection(ws,request) {
 //          }
         if(parsedData.type === "join_room"){
             users.find((u) =>  u.ws === ws)?.rooms.push(parsedData.roomId)
-            ws.send("User %s" + UserId +" joined "+ parsedData.roomId)
-            
+            ws.send(JSON.stringify({
+                type: "system",
+                message: "User joined room"
+            }));
         }
 
         if (parsedData.type === "leave_room") {

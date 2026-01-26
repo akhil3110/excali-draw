@@ -272,7 +272,9 @@ export function draw(
 
         if (message.type !== "chat") return;
 
+        
         const data = JSON.parse(message.message)
+        
 
         if (!data || !data.shape || !data.shape.id) {
             return;
