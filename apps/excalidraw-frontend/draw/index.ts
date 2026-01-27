@@ -13,7 +13,8 @@ type InteractionMode =
 
   
 type Shapes = {
-    id:string;
+    id?: string;        // DB id (after save)
+  tempId?: string;
     type: 'rectangle' ;
     x: number;
     y: number;

@@ -1,5 +1,5 @@
 
-import { integer, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+import { integer, jsonb, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2'
 import { relations } from 'drizzle-orm';
 
@@ -42,9 +42,11 @@ export const canvas = pgTable('canvas',{
 })
 
 export const shapes = pgTable('shapes',{
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    canvasId: integer('canvas_id').notNull().references(() => canvas.id),
-    name: varchar({length:255}).notNull(),
+    id: text("id").primaryKey(),
+    canvasId: integer('canvas_id').notNull().references(() => canvas.id,{onDelete:'cascade'}),
+    userId: text('user_id').references(() => user.id, { onDelete: 'set null' }),
+    type: varchar({length:255}).notNull(),
+    data: jsonb("data").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().$onUpdate(() => new Date()),
 })
@@ -95,6 +97,17 @@ export const canvasUserRelation = relations(canvasUsers,({one}) => ({
     }),
     user: one(user,{
         fields: [canvasUsers.memberId],
+        references: [user.id]
+    })
+}))
+
+export const shapesRelation = relations(shapes,({one}) => ({
+    canvas: one(canvas, {
+        fields: [shapes.canvasId],
+        references: [canvas.id]
+    }),
+    user: one(user,{
+        fields: [shapes.userId],
         references: [user.id]
     })
 }))
