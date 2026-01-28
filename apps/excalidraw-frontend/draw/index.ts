@@ -12,7 +12,7 @@ type InteractionMode =
   | "rotating";
 
   
-type Shapes = {
+export type Shapes = {
     id?: string;        // DB id (after save)
   tempId?: string;
     type: 'rectangle' ;
@@ -45,6 +45,7 @@ type Shapes = {
     type: "pencil"
     points: { x: number; y: number }[]
 }
+
 
 
 // const existingShapes: Shapes[] = [];
@@ -235,6 +236,7 @@ export function draw(
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const existingShapes = shapesRef.current;
+    console.log(existingShapes, "existing shapes")
 
     canvas.style.backgroundColor = "#121212";
     ctx.strokeStyle = "#D3D3D3";
@@ -271,7 +273,8 @@ export function draw(
     socket.onmessage = (event) => {
         const message = JSON.parse(event.data);
 
-        if (message.type !== "chat") return;
+        // if (message.type !== "chat") return;
+        if(message.type !== "shapes") return
 
         
         const data = JSON.parse(message.message)
@@ -381,9 +384,16 @@ export function draw(
 
                 existingShapes.push(shape)
 
+                // socket.send(
+                //     JSON.stringify({
+                //         type: "chat",
+                //         message: JSON.stringify({shape}),
+                //         roomId
+                //     })
+                // )
                 socket.send(
                     JSON.stringify({
-                        type: "chat",
+                        type: "shapes",
                         message: JSON.stringify({shape}),
                         roomId
                     })
@@ -458,9 +468,18 @@ export function draw(
 
                 clearCanvas(existingShapes,ctx,canvas, null)
 
+                // socket.send(
+                //     JSON.stringify({
+                //         type: "chat",
+                //         message: JSON.stringify({
+                //         action: "delete",
+                //         shape: deletedShape,
+                //     }),
+                //     roomId,
+                // }));
                 socket.send(
                     JSON.stringify({
-                        type: "chat",
+                        type: "shapes",
                         message: JSON.stringify({
                         action: "delete",
                         shape: deletedShape,
@@ -550,9 +569,18 @@ export function draw(
     canvas.onmouseup = (e) => {
 
         if(tool === "pencil" && currentPencilShape){
+            // socket.send(
+            //     JSON.stringify({
+            //         type: "chat",
+            //         message: JSON.stringify({
+            //             shape: currentPencilShape
+            //         }),
+            //         roomId
+            //     })
+            // )
             socket.send(
                 JSON.stringify({
-                    type: "chat",
+                    type: "shapes",
                     message: JSON.stringify({
                         shape: currentPencilShape
                     }),
@@ -565,9 +593,18 @@ export function draw(
         }
 
         if(tool === "select"){
+            // socket.send(
+            //     JSON.stringify({
+            //         type: "chat",
+            //         message: JSON.stringify({
+            //             shape: selectedShape
+            //         }),
+            //         roomId
+            //     })
+            // )
             socket.send(
                 JSON.stringify({
-                    type: "chat",
+                    type: "shapes",
                     message: JSON.stringify({
                         shape: selectedShape
                     }),
@@ -629,9 +666,15 @@ export function draw(
 
         existingShapes.push(shape);
 
+        // socket.send(
+        //     JSON.stringify({
+        //     type: "chat",
+        //     message: JSON.stringify({ shape }),
+        //     roomId,
+        // }));
         socket.send(
             JSON.stringify({
-            type: "chat",
+            type: "shapes",
             message: JSON.stringify({ shape }),
             roomId,
         }));
@@ -701,16 +744,5 @@ function clearCanvas(
 
 
 //todo
-async function getExistingShapes(roomId: string   ) {
-    const res = await axios.get(`${backendUrl}/chats/${roomId}`)
-    const data = res.data.messages;
-    
 
-    const shapes = data.map((x: {message: string}) => {
-        const messageData = JSON.parse(x.message);
-        return messageData
-    })
-
-    return shapes;
-}
 

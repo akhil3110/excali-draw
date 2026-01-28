@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Square, Circle, ArrowLeft, ArrowRight, ArrowDownRight, MousePointer, Eraser, Text, Type, Pencil } from "lucide-react";
+import { Square, Circle, ArrowLeft, ArrowRight, ArrowDownRight, MousePointer, Eraser, Text, Type, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ActionTooltip from "./action-tooltip";
 import { useEffect } from "react";
@@ -16,10 +16,10 @@ const tools = [
   { id: "eraser", icon: Eraser, key: "7", label: "Eraser" },
 ];
 
-export default function TopToolbar({ tool, setTool }: any) {
+export default function TopToolbar({ tool, setTool,onClear,admin }: any) {
     const router = useRouter();
-
-    useEffect(() => {
+    
+    useEffect(() => {   
         const handler = (e: KeyboardEvent) =>{
             const found  = tools.find((t) => t.key === e.key)
             if (found) setTool(found.id)
@@ -69,9 +69,24 @@ export default function TopToolbar({ tool, setTool }: any) {
                         </span>
                     </button>
                 </ActionTooltip>
+                
             )
         })}
-      </div>
+        </div>
+        {/* {admin && ( */}
+            <ActionTooltip label="Clear Canvas">
+                <div className="fixed top-4 right-4 z-50">
+                    <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={onClear}
+                        className="font-extrabold"
+                    >
+                        <Trash2 className="h-5 w-5" />
+                    </Button>
+                </div>
+            </ActionTooltip>
+        {/* )} */}
     </>
   );
 }

@@ -8,7 +8,7 @@ import { createRoomRoute, getAllRoomsRoute, getRoomRoute } from "./routes/roomRo
 import { getRoomChatsRoute } from "./routes/chatRoutes";
 import cookieParser from "cookie-parser";
 import { AddUsersToCanvasRoute, createCanvasRoute, deleteCanvasRoute, getAllCanvasRoute, getCanvasByIdRoute } from "./routes/canvasRoutes";
-import { createShapesRoute, deleteShapesByIdRoute, getAllShapesInCanvasRoute } from "./routes/shapesRoute";
+import { createShapesRoute, deleteAllShapesInCanvasRoute, deleteShapesByIdRoute, getAllShapesInCanvasRoute, moveShapeByIdRoute } from "./routes/shapesRoute";
 
 
 const app = express();
@@ -51,7 +51,8 @@ app.get("/canvas/:id",middleware,getCanvasByIdRoute)
 app.post("/shapes",middleware,createShapesRoute)
 app.get("/shapes/:id",middleware,getAllShapesInCanvasRoute)
 app.delete("/shapes/:id",middleware,deleteShapesByIdRoute)
-
+app.put("/shapes/:id",middleware,moveShapeByIdRoute)
+app.delete("/shapes/deleteAll/:id",middleware,deleteAllShapesInCanvasRoute)
 
 
 app.listen(port, () => {

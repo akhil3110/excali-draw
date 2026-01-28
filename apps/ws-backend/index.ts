@@ -69,7 +69,6 @@ wss.on('connection', function connection(ws,request) {
     ws.on('message', async function msg(data) {
 
         const parsedData = JSON.parse(data as unknown as string);
-        console.log(parsedData)
 
 //         {
 //              type: "join_room",
@@ -126,6 +125,39 @@ wss.on('connection', function connection(ws,request) {
                 console.log("chat:",error)
             }
         }
+
+        if(parsedData.type === "shapes"){
+            try {
+            console.log("Shape recieved")
+            const roomId  = parsedData.roomId
+            const shape = parsedData.message
+            const message = JSON.parse(parsedData.message)
+
+            //queu implementetion
+           const payload = {
+                type: "shapes",
+                action: message.action, 
+                shape,
+                roomId,
+                userId: UserId
+            };
+            console.log(payload)
+            users.forEach((u) => {
+                if(u.rooms.includes(roomId) && u.ws != ws){
+                    u.ws.send(JSON.stringify({
+                        type: "shapes",
+                        roomId: Number(roomId),
+                        message: shape,
+                    }))
+                    // u.ws.send(message)
+                }
+            })
+            pushMessage(payload);
+            } catch (error) {
+                console.log("shapes:",error)
+            }
+        }
+        
         
 
         ws.send(data.toString());
