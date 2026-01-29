@@ -1,7 +1,30 @@
+"use client"
 import { Button } from "@/components/ui/button";
+import useModalStore from "@/store/modal-store";
 import { ArrowRight } from "lucide-react";
+import toast from "react-hot-toast";
 
-const CTASection = () => {
+interface CTASectionProps {
+  token?: string | null;
+  userId?: string | null;
+}
+
+const CTASection = ({token,userId}: CTASectionProps) => {
+  const {onOpen} = useModalStore();
+
+   function handleStartDrawing() {
+    try {
+      
+      if(!token || !userId) {
+        return toast.error("Please login to start drawing!");
+      }
+
+      onOpen("create-room-modal",{userId})
+
+    } catch (error) {
+      
+    }
+  }
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background glow */}
@@ -18,12 +41,9 @@ const CTASection = () => {
             Free forever, no credit card required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="hero" size="xl">
+            <Button onClick={() => {onOpen("create-room-modal")}}  variant="hero" size="xl">
               Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button variant="hero-outline" size="xl">
-              Learn More
             </Button>
           </div>
         </div>

@@ -18,7 +18,7 @@ export default async function Home() {
       <main>
         <HeroSection token={token} userId={userId} />
         <FeaturesSection />
-        <CTASection />
+        <CTASection token={token} userId={userId} />
       </main>
       <Footer />
     </div>
