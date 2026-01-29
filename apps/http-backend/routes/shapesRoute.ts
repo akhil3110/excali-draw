@@ -4,6 +4,7 @@ import { shapes } from "@repo/db/schema";
 import type { Request, Response } from "express";
 import { and, eq } from "drizzle-orm";
 import type { Shapes } from "@repo/common/types";
+import { redisPublisher } from "@repo/redis/client";
 
 
 
@@ -55,9 +56,8 @@ export async function getAllShapesInCanvasRoute(req: Request, res: Response) {
       .orderBy(shapes.createdAt);
 
     
-    // Return only shape data (frontend-friendly)
     const response = result.map((s) => s.data);
-    console.log(response)
+
     return res.json(response);
   } catch (err) {
     console.error(err);

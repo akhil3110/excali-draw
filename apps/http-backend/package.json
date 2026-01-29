@@ -9,7 +9,8 @@
     "@repo/typescript-config": "*",
     "@repo/backend-common": "*",
     "@repo/common": "*",
-    "@repo/db": "*"
+    "@repo/db": "*",
+    "@repo/redis": "*"
   },
   "scripts": {
     "dev": "bun index.ts",

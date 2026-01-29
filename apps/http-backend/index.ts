@@ -18,6 +18,14 @@ app.use(cors({
     origin: [
         "http://localhost:3000",
         "http://localhost:3002",
+        "https://ecdraw.akhilparmar.com",
+        "http://ecdraw.akhilparmar.com",
+        "http://54.83.206.102:3000",
+        "https://54.83.206.102:3000",
+        "https://backend.ecdraw.akhilparmar.com",
+        "http://backend.ecdraw.akhilparmar.com",
+        "http://54.83.206.102:3002",
+        "https://54.83.206.102:3002",
     ],
     credentials: true,
 }))

@@ -6,8 +6,6 @@ export default async function DashboardPage() {
   const cookieStore = await cookies()
   const token = cookieStore.get("token")?.value;
   
-
-  console.log("Dashboard token:", token);
   if(!token){
     return <div>Please login to access dashboard</div>
   }

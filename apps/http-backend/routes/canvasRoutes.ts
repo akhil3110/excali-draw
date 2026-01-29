@@ -3,6 +3,8 @@ import { db } from "@repo/db/db";
 import { canvas, canvasUsers, chat, user } from "@repo/db/schema";
 import type { Request, Response } from "express";
 import { and, eq, exists } from "drizzle-orm";
+import { redisPublisher } from "@repo/redis/client";
+import { ca } from "zod/locales";
 
 
 export async function createCanvasRoute(req: Request,res: Response) {
@@ -139,6 +141,16 @@ export async function getAllCanvasRoute(req: Request, res: Response) {
             }).status(403)
         }
 
+        const cacheKey = `canvases:${req.userId}`;
+        
+        const cacheData = await redisPublisher.get(cacheKey);
+        
+        if(cacheData){
+            console.log("cache hit",cacheData)
+            console.log("JSON",JSON.parse(cacheData))
+            return res.json(JSON.parse(cacheData))
+        }
+
         const canvases = await db.query.canvas.findMany({
             where: (canvas,{eq}) => eq(canvas.adminId,req.userId!),
             with: {
@@ -172,9 +184,12 @@ export async function getAllCanvasRoute(req: Request, res: Response) {
                     }
                 }
         })
+
+        await redisPublisher.set(cacheKey,JSON.stringify({canvases,memberCanvas}),"EX",60)
+
         return res.json({
-            canvases,
-            memberCanvas
+           canvases,
+           memberCanvas
         })
     } catch (error) {
         console.log(error)
