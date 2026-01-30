@@ -1,5 +1,5 @@
 "use client";
-import { Home, FolderOpen, Star, Clock, Users, Settings, HelpCircle, Plus, Trash2, X } from "lucide-react";
+import { Home, FolderOpen, Star, Clock, Users, Settings, HelpCircle, Plus, Trash2, X, User, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -17,25 +17,25 @@ interface DashboardSidebarProps {
   onClose: () => void;
   token?: string | null;
   userId?: string | null;
+  name: string;
+  count:number | 0;
+  yourBoard: number | 0;
+  invitedBoard: number | 0;
 }
 
-const DashboardSidebar = ({ isOpen, onClose, token, userId }: DashboardSidebarProps) => {
+const DashboardSidebar = ({ isOpen, onClose, token, userId,name,count, yourBoard, invitedBoard }: DashboardSidebarProps) => {
 
    const {onOpen} = useModalStore();
   const router = useRouter()
   const mainItems: SidebarItem[] = [
-    { icon: <Home className="w-5 h-5" />, label: "Home", active: true },
-    { icon: <FolderOpen className="w-5 h-5" />, label: "All Boards", count: 24 },
+    { icon: <FolderOpen className="w-5 h-5" />, label: "All Boards", count: count, active: true },
     { icon: <Star className="w-5 h-5" />, label: "Favorites", count: 5 },
-    { icon: <Clock className="w-5 h-5" />, label: "Recent", count: 12 },
-    { icon: <Users className="w-5 h-5" />, label: "Shared with me", count: 8 },
+    { icon: <LayoutDashboard className="w-5 h-5" />, label: "Your Boards", count:yourBoard  },
+    { icon: <Users className="w-5 h-5" />, label: "Shared with me", count: invitedBoard },
     { icon: <Trash2 className="w-5 h-5" />, label: "Trash" },
   ];
 
-  const bottomItems: SidebarItem[] = [
-    { icon: <Settings className="w-5 h-5" />, label: "Settings" },
-    { icon: <HelpCircle className="w-5 h-5" />, label: "Help & Support" },
-  ];
+  
 
   function handleStartDrawing() {
     try {
@@ -119,50 +119,15 @@ const DashboardSidebar = ({ isOpen, onClose, token, userId }: DashboardSidebarPr
               </li>
             ))}
           </ul>
-
-          {/* Folders Section */}
-          <div className="mt-8">
-            <div className="flex items-center justify-between px-3 mb-2">
-              <span className="text-xs font-semibold text-[hsl(215,20%,65%)] uppercase tracking-wider">Folders</span>
-              <button className="text-[hsl(215,20%,65%)] hover:text-[hsl(174,72%,56%)] transition-colors">
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-            <ul className="space-y-1">
-              {["Projects", "Personal", "Work", "Archive"].map((folder, index) => (
-                <li key={index}>
-                  <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[hsl(215,20%,65%)] hover:bg-[hsl(222,47%,20%)] hover:text-[hsl(210,40%,98%)] transition-all duration-200">
-                    <FolderOpen className="w-4 h-4" />
-                    <span className="text-sm">{folder}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
         </nav>
-
-        {/* Bottom Navigation */}
-        <div className="p-3 border-t border-[hsl(222,47%,25%)]">
-          <ul className="space-y-1">
-            {bottomItems.map((item, index) => (
-              <li key={index}>
-                <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[hsl(215,20%,65%)] hover:bg-[hsl(222,47%,20%)] hover:text-[hsl(210,40%,98%)] transition-all duration-200">
-                  {item.icon}
-                  <span className="text-sm font-medium">{item.label}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
         {/* User Profile */}
         <div className="p-4 border-t border-[hsl(222,47%,25%)]">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 cursor-pointer">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[hsl(270,60%,65%)] to-[hsl(174,72%,56%)] flex items-center justify-center">
-              <span className="text-[hsl(210,40%,98%)] font-semibold text-sm">JD</span>
+              <span className="text-[hsl(210,40%,98%)] font-semibold text-sm">{name.at(0)}</span>
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-[hsl(210,40%,98%)]">John Doe</p>
+              <p className="text-sm font-medium text-[hsl(210,40%,98%)]">{name}</p>
               <p className="text-xs text-[hsl(215,20%,65%)]">Pro Plan</p>
             </div>
           </div>

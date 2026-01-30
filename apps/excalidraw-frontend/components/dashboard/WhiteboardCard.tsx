@@ -22,7 +22,6 @@ const WhiteboardCard = ({
 
   const router = useRouter()
   const {onOpen} = useModalStore()
-  console.log(id, "id")
 
   return (
     <div

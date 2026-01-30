@@ -49,18 +49,11 @@ export async function AddUsersToCanvasRoute(req: Request, res: Response) {
         const {id} = req.params
 
         if(!data.success){
-            console.log(data)
             return res.json({
                 message: "Invalid inputs",
             }).status(403)
         }
-        console.log(data)
-        console.log(id, "canvasId")
-        console.log(req.userId, "req user")
-        console.log(req.params, "req params")
-
-
-
+       
         if(!req.userId || !id){
             console.log(req.userId, "adad")
             return res.json({
@@ -79,8 +72,6 @@ export async function AddUsersToCanvasRoute(req: Request, res: Response) {
         }
 
         if(canvasExist.adminId !== req.userId){
-            console.log(canvasExist.adminId)
-            console.log(req.userId)
             return res.json({
                 message: "Unauthorized access",
             }).status(403)
@@ -146,8 +137,6 @@ export async function getAllCanvasRoute(req: Request, res: Response) {
         const cacheData = await redisPublisher.get(cacheKey);
         
         if(cacheData){
-            console.log("cache hit",cacheData)
-            console.log("JSON",JSON.parse(cacheData))
             return res.json(JSON.parse(cacheData))
         }
 

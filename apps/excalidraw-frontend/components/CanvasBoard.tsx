@@ -7,6 +7,7 @@ import TopToolbar from "./TopToolbar";
 import axios from "axios";
 import { backendUrl } from "@/config";
 import { isUserAdmin } from "@/lib/isUserAdmin";
+import { CanvasLoader } from "./CanvasLoader";
 
 
 type Shapes = {
@@ -119,7 +120,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    const cleanup = draw(canvas, canvasId, socket, tool, shapesRef);
+    const cleanup = draw(canvas, canvasId, socket, tool, shapesRef,() => {setTool("select")});
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
@@ -150,6 +151,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
         console.log(error);
       }
     }
+    
 
     socket.addEventListener("message", handleMessage);
     
@@ -180,10 +182,13 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+
+  const isReady = loading || hydrated;
+  
 
   return (
     <div className="w-screen h-screen overflow-hidden">
+      {!isReady && <CanvasLoader/>}
       <TopToolbar tool={tool} setTool={setTool} onClear={clearCanvas} />
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>

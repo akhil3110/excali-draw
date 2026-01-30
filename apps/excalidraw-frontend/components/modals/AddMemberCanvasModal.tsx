@@ -62,7 +62,6 @@ const AddMemberCanvasModal = () => {
   }
 }, [isModalOpen, data?.canvasId, form]);
 
-    console.log(data)
     async function onSubmit(values: z.infer<typeof formSchema>) {
       try {
         setIsLoading(true)
@@ -72,7 +71,6 @@ const AddMemberCanvasModal = () => {
         },{
             withCredentials: true
         }).then(( res ) => {
-            console.log(res)
             if(res.data.userNotExists){
                 form.reset()
                 onClose()

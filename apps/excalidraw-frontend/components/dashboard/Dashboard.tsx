@@ -32,6 +32,7 @@ const Dashboard = ({
 }: { name: string, token: string, userId: string }) => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const {whiteboards, setWhiteboards} = useWhiteBoardStore()
   const {memberWhiteboards, setMemberWhiteboards} = useMemberWhiteBoardStore()
@@ -42,6 +43,7 @@ const Dashboard = ({
 
     async function getWhiteBoard(){
       try {
+        setLoading(true)
         const data = await axios.get(`${backendUrl}/canvas`,{
           withCredentials: true,
         })
@@ -50,7 +52,7 @@ const Dashboard = ({
           toast.error("Something went wrong")
           return
         }
-        console.log(data.data)
+        
 
         
         if(data.data.canvases){
@@ -60,6 +62,7 @@ const Dashboard = ({
         if(data.data.memberCanvas){
           setMemberWhiteboards(data.data.memberCanvas)
         }
+        setLoading(false)
       } catch (error) {
         console.log(error)
       }
@@ -79,7 +82,16 @@ const Dashboard = ({
   return (
     <div className="h-full w-full bg-[hsl(222,47%,11%)]">
       {/* Sidebar */}
-      <DashboardSidebar userId={userId} token={token} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <DashboardSidebar 
+        name={name} 
+        userId={userId} 
+        token={token} 
+        isOpen={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)} 
+        count={whiteboards.length+memberWhiteboards.length} 
+        yourBoard={whiteboards.length}
+        invitedBoard={memberWhiteboards.length}
+      />
 
       {/* Main Content */}
       <div className="lg:ml-64">
@@ -104,6 +116,17 @@ const Dashboard = ({
 
           {/* Stats
           <StatsCards /> */}
+
+          {loading && (
+            <div className="h-full w-full flex items-center justify-center bg-[hsl(222,47%,11%)]">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-[hsl(174,72%,56%)] border-t-transparent" />
+                <p className="text-sm text-[hsl(215,20%,65%)]">
+                  Loading your whiteboards...
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Whiteboards Section */}
           {whiteboards.length > 0 && (

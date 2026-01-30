@@ -18,7 +18,6 @@ const AddUserInRoom = async({
     
 
     const email = getEmail(token!);
-    console.log(email)
 
     if(!email || !token){
         return (

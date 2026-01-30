@@ -1,7 +1,4 @@
-import { backendUrl } from "@/config";
-import { shapes } from "@repo/db/schema";
-import axios from "axios";
-import { text } from "stream/consumers";
+import { v4 as uuidv4 } from "uuid";
 
 
 type InteractionMode =
@@ -231,12 +228,12 @@ export function draw(
   roomId: string,
   socket: WebSocket,
   tool: "rectangle" | "circle" | 'arrow' | 'select' | 'eraser'| "text" | "pencil" ,
-  shapesRef: React.MutableRefObject<Shapes[]>
+  shapesRef: React.MutableRefObject<Shapes[]>,
+  onShapeCreated?: () => void
 ) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const existingShapes = shapesRef.current;
-    console.log(existingShapes, "existing shapes")
 
     canvas.style.backgroundColor = "#121212";
     ctx.strokeStyle = "#D3D3D3";
@@ -333,7 +330,7 @@ export function draw(
             const {x,y} = getMousePos(e)
 
             currentPencilShape = {
-                id: crypto.randomUUID(),
+                id:  uuidv4(),
                 type: "pencil",
                 points: [{x,y}]
             };
@@ -374,7 +371,7 @@ export function draw(
                 }
 
                 const shape: Shapes = {
-                    id: crypto.randomUUID(),
+                    id:  uuidv4(),
                     type: "text",
                     x,
                     y,
@@ -629,7 +626,7 @@ export function draw(
 
         if (tool === "rectangle") {
             shape = {
-                id: crypto.randomUUID(),
+                id:  uuidv4(),
                 type: "rectangle",
                 x: startX,
                 y: startY,
@@ -640,7 +637,7 @@ export function draw(
 
         if (tool === "circle") {
             shape = {
-                id: crypto.randomUUID(),
+                id:  uuidv4(),
                 type: "circle",
                 x: startX,
                 y: startY,
@@ -653,7 +650,7 @@ export function draw(
             const endY = e.clientY - canvas.getBoundingClientRect().top;
 
             shape={
-                id: crypto.randomUUID(),
+                id:  uuidv4(),
                 type: "arrow",
                 startX,
                 startY,
@@ -678,6 +675,8 @@ export function draw(
             message: JSON.stringify({ shape }),
             roomId,
         }));
+
+        onShapeCreated?.()
         
     };
 
