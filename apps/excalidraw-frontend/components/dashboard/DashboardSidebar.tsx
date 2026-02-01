@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import useModalStore from "@/store/modal-store";
+import { useShowCanvasStore } from "@/store/showCanvas-store";
 
 interface SidebarItem {
   icon: React.ReactNode;
   label: string;
   count?: number;
   active?: boolean;
+  onClick?: () => void;
 }
 
 interface DashboardSidebarProps {
@@ -25,16 +27,35 @@ interface DashboardSidebarProps {
 
 const DashboardSidebar = ({ isOpen, onClose, token, userId,name,count, yourBoard, invitedBoard }: DashboardSidebarProps) => {
 
-   const {onOpen} = useModalStore();
+  const {onOpen} = useModalStore();
   const router = useRouter()
-  const mainItems: SidebarItem[] = [
-    { icon: <FolderOpen className="w-5 h-5" />, label: "All Boards", count: count, active: true },
-    { icon: <Star className="w-5 h-5" />, label: "Favorites", count: 5 },
-    { icon: <LayoutDashboard className="w-5 h-5" />, label: "Your Boards", count:yourBoard  },
-    { icon: <Users className="w-5 h-5" />, label: "Shared with me", count: invitedBoard },
-    { icon: <Trash2 className="w-5 h-5" />, label: "Trash" },
-  ];
+  const { view, setView } = useShowCanvasStore();
 
+  const mainItems: SidebarItem[] = [
+    { 
+      icon: <FolderOpen className="w-5 h-5" />, 
+      label: "All Boards", 
+      count: count, 
+      active: view === "all",
+      onClick: () => setView("all")
+    },
+    // { icon: <Star className="w-5 h-5" />, label: "Favorites", count: 5 },
+    { 
+      icon: <LayoutDashboard className="w-5 h-5" />, 
+      label: "Your Boards", count:yourBoard, 
+      active: view==="created",
+      onClick: () => setView("created")
+    },
+    { 
+      icon: <Users className="w-5 h-5" />, 
+      label: "Shared with me", 
+      count: invitedBoard, 
+      active: view==="member",
+      onClick: () => setView("member")
+    },
+    // { icon: <Trash2 className="w-5 h-5" />, label: "Trash" },
+  ];
+ 
   
 
   function handleStartDrawing() {
@@ -96,7 +117,7 @@ const DashboardSidebar = ({ isOpen, onClose, token, userId,name,count, yourBoard
         <nav className="flex-1 px-3 py-2 overflow-y-auto">
           <ul className="space-y-1">
             {mainItems.map((item, index) => (
-              <li key={index}>
+              <li key={index} onClick={item.onClick}>
                 <button
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                     item.active

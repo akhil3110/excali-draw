@@ -106,12 +106,12 @@ const CreateRoomModal = () => {
                   name="room"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel>Room Name</FormLabel>
+                      <FormLabel>Canvas Name</FormLabel>
                       <FormControl>
                         <Input placeholder="room-1" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Enter you room name
+                        Enter name of your canvas
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

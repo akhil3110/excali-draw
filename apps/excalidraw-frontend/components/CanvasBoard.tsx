@@ -187,7 +187,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
   
 
   return (
-    <div className="w-screen h-screen overflow-hidden">
+    <div className="fixed inset-0 overflow-hidden">
       {!isReady && <CanvasLoader/>}
       <TopToolbar tool={tool} setTool={setTool} onClear={clearCanvas} />
       <canvas ref={canvasRef} className="absolute inset-0" />

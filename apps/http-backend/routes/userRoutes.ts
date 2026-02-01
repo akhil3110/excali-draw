@@ -58,12 +58,23 @@ export async function userSignInRoute(req: Request, res: Response){
             {expiresIn: "7d"}
         )
 
-        res.cookie("token",token, {
-            httpOnly: process.env.NODE_ENV === "production",
-            secure: false,
-            sameSite: "lax",
-            maxAge: 7*24*60*60*1000
-        })
+        const isProd = process.env.NODE_ENV === "production";
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: isProd,                         // true in prod (HTTPS)
+            sameSite: isProd ? "none" : "lax",      // required for subdomains
+            domain: isProd ? ".akhilparmar.com" : undefined,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+
+        // res.cookie("token",token, {
+        //     httpOnly: process.env.NODE_ENV === "production",
+        //     secure: false,
+        //     sameSite: "lax",
+        //     maxAge: 7*24*60*60*1000
+        // })
         
         console.log("user Logined in successfully");
         return res.json({
@@ -112,12 +123,15 @@ export async function userSignUpRoute(req: Request, res: Response){
         )
 
 
-        res.cookie("token",token, {
-            httpOnly: process.env.NODE_ENV === "production",
-            secure: false,
-            sameSite: "lax",
-            maxAge: 7*24*60*60*1000
-        })
+        const isProd = process.env.NODE_ENV === "production";
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: isProd,                         // true in prod (HTTPS)
+            sameSite: isProd ? "none" : "lax",      // required for subdomains
+            domain: isProd ? ".akhilparmar.com" : undefined,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
     
         return res.json({
             message: "User created successfully",
@@ -130,7 +144,11 @@ export async function userSignUpRoute(req: Request, res: Response){
 
 export function userSignOutRoute(req: Request, res: Response){
     try {
-        res.clearCookie("token")
+
+        const isProd = process.env.NODE_ENV === "production";
+        res.clearCookie("token",{
+            domain: isProd ? ".akhilparmar.com" : undefined,
+        })
         return res.json({
             message: "User logged out"
         })

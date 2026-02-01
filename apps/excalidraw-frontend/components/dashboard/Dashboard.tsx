@@ -10,6 +10,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import useModalStore from "@/store/modal-store";
 import useMemberWhiteBoardStore from "@/store/memberWhiteBoard-store";
+import { useShowCanvasStore } from "@/store/showCanvas-store";
 
 // const whiteboards = [
 //   { id: 1, title: "Product Roadmap 2024", lastEdited: "5 min ago", collaborators: 4, isFavorite: true, isShared: true },
@@ -37,7 +38,10 @@ const Dashboard = ({
   const {whiteboards, setWhiteboards} = useWhiteBoardStore()
   const {memberWhiteboards, setMemberWhiteboards} = useMemberWhiteBoardStore()
   const {onOpen} = useModalStore()
-  
+  const { view } = useShowCanvasStore();
+
+  const showCreated = view==="all" || view === "created";
+  const showMember =  view==="all" || view === "member";
 
   useEffect(() => {
 
@@ -73,8 +77,8 @@ const Dashboard = ({
 
   },[])
 
-  async function handleJoinCanvas(){
-    onOpen("join-canvas-modal")
+  async function handleCreateCanvas(){
+    onOpen("create-room-modal")
   }
 
 
@@ -100,18 +104,53 @@ const Dashboard = ({
           viewMode={viewMode} 
           setViewMode={setViewMode} 
           onMenuClick={() => setSidebarOpen(true)}
+          token={token} 
         />
 
         {/* Content Area */}
         <main className="pt-16 p-4 lg:p-6 scroll-auto">
           {/* Welcome Section */}
-          <div className="mb-6 lg:mb-8">
-            <h1 className="text-xl lg:text-2xl font-bold text-[hsl(210,40%,98%)] mb-1">
-              Welcome back, {name}! 👋
-            </h1>
-            <p className="text-sm lg:text-base text-[hsl(215,20%,65%)]">
-              Here's what's happening with your whiteboards today.
-            </p>
+          <div className="mb-6 lg:mb-8 flex flex-row justify-between">
+            <div>
+              <h1 className="text-xl lg:text-2xl font-bold text-[hsl(210,40%,98%)] mb-1">
+                Welcome back, {name}! 👋
+              </h1>
+              <p className="text-sm lg:text-base text-[hsl(215,20%,65%)]">
+                Here's what's happening with your whiteboards today.
+              </p>
+            </div>
+            <div className={`flex items-center mb-4 justify-between`}>
+              <div className="flex flex-row gap-x-3">
+                <button 
+                  onClick={handleCreateCanvas} 
+                  className="text-sm text-[hsl(174,72%,56%)] hover:text-[hsl(174,72%,66%)] transition-colors hover:underline cursor-pointer"
+                >
+                  Create Canvas
+                </button>
+                <div className="hidden sm:flex items-center bg-[hsl(222,47%,20%)] rounded-md p-1">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === "grid"
+                      ? "bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)]"
+                      : "text-[hsl(215,20%,65%)] hover:text-[hsl(165,40%,98%)]"
+                    }`}
+                  >
+                    <Grid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                    viewMode === "list"
+                      ? "bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)]"
+                      : "text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)]"
+                    }`}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>    
           </div>
 
           {/* Stats
@@ -129,66 +168,40 @@ const Dashboard = ({
           )}
 
           {/* Whiteboards Section */}
-          {whiteboards.length > 0 && (
-            <>
+            
+          {whiteboards.length>0 && showCreated  && ( 
+            <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-[hsl(210,40%,98%)]">Your Boards</h2>
-                <div className="flex flex-row gap-x-3">
-                  <button onClick={handleJoinCanvas} className="text-sm text-[hsl(174,72%,56%)] hover:text-[hsl(174,72%,66%)] transition-colors hover:underline cursor-pointer">
-                    Join Canvas
-                  </button>
-                  <div className="hidden sm:flex items-center bg-[hsl(222,47%,20%)] rounded-md p-1">
-                    <button
-                      onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-md transition-all duration-200 ${
-                      viewMode === "grid"
-                        ? "bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)]"
-                        : "text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)]"
-                      }`}
-                    >
-                      <Grid className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-md transition-all duration-200 ${
-                        viewMode === "list"
-                        ? "bg-[hsl(174,72%,56%)] text-[hsl(222,47%,11%)]"
-                        : "text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)]"
-                      }`}
-                    >
-                      <List className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
               </div>
-          
-              <div className={`grid gap-4 ${
-                viewMode === "grid" 
+            
+            <div className={`grid gap-4 ${
+              viewMode === "grid" 
                 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
                 : "grid-cols-1"
-                }`}>
-                  {whiteboards.map((board) => (
-                    <WhiteboardCard 
-                      key={board.id}
-                      id={board.id}
-                      title={board.name}
-                      collaborators={Number(board.canvasUsers.length+1)}
-                      isFavorite={board.isFavorite}
-                      isShared={board.isShared}
-                    />
-                  ))}
-              </div>
-            </>
+              }`}
+            >
+              {whiteboards.map((board) => (
+                <WhiteboardCard 
+                  key={board.id}
+                  id={board.id}
+                  title={board.name}
+                  collaborators={Number(board.canvasUsers.length+1)}
+                  isFavorite={board.isFavorite}
+                  isShared={board.isShared}
+                />
+              ))}
+            </div>
+            </div>
           )}
+              
+            
 
           {/* Member Section */}
-          {memberWhiteboards.length > 0 && (
+          {memberWhiteboards.length > 0 && showMember && (
             <div className=" mt-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-[hsl(210,40%,98%)]">Boards you are a member of</h2>
-                <div className="flex flex-row gap-x-3">
-                
-                </div>
               </div>
           
               <div className={`grid gap-4 ${
