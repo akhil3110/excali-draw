@@ -58,7 +58,7 @@ const UserListModal = () => {
         <DialogContent className="bg-neutral-800 text-white p-0 rounded-lg shadow-lg overflow-hidden">
           <DialogHeader className="pt-8 px-6">
             <DialogTitle className="text-xl text-center font-semibold text-white">
-              Are you sure you want to Delete this Canvas?
+              Manage Members
             </DialogTitle>
           </DialogHeader>
           <div className="theme-scrollbar max-h-[50vh] overflow-y-auto px-6 pb-4">
