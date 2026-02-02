@@ -6,6 +6,7 @@ import CreateRoomModal from "../modals/CreateRoomModal";
 import DeleteCanvasModal from "../modals/DeleteCanvsModal";
 import JoinCanvasModal from "../modals/JoinCanvasModal";
 import AddMemberCanvasModal from "../modals/AddMemberCanvasModal";
+import UserListModal from "../modals/UserListModal";
 
 
 const ModalProider = () => {
@@ -19,6 +20,7 @@ const ModalProider = () => {
     
     return (
         <>
+            <UserListModal />
             <LogoutModal />
             <CreateRoomModal />
             <DeleteCanvasModal />

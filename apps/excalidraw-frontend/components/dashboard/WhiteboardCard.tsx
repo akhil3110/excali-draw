@@ -4,12 +4,27 @@ import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import useModalStore from "@/store/modal-store";
 import ActionTooltip from "../action-tooltip";
+
+interface canvasMemberData {
+  id: number;
+  canvasId: number;
+  memberId: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  }
+}
+
 interface WhiteboardCardProps {
   id: number;
   title: string;
   collaborators: number;
   isFavorite?: boolean;
   isShared?: boolean;
+  isAdmin?: boolean;
+  members?: canvasMemberData[];
+  email?: string
 }
 
 const WhiteboardCard = ({
@@ -18,6 +33,9 @@ const WhiteboardCard = ({
   collaborators,
   isFavorite = false,
   isShared = false,
+  isAdmin,
+  members,
+  email
 }: WhiteboardCardProps) => {
 
   const router = useRouter()
@@ -48,12 +66,12 @@ const WhiteboardCard = ({
         <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="flex flex-col gap-y-2">
             <ActionTooltip label="Add members">
-              <Button onClick={() =>onOpen("addMember-canvas-modal",{canvasId:id })} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
+              <Button onClick={() =>onOpen("addMember-canvas-modal",{email})} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
                 <UserRoundPlus className="w-4 h-4" />
               </Button>
             </ActionTooltip>
             <ActionTooltip label="Delete canvas" side="bottom">
-              <Button onClick={() =>onOpen("delte-canvas-modal",{canvasId:id })} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
+              <Button onClick={() =>onOpen("delte-canvas-modal", {canvasId:id })} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
                 <Trash className="w-4 h-4" />
             </Button>
             </ActionTooltip>
@@ -74,12 +92,26 @@ const WhiteboardCard = ({
       <div className="p-4">
         <div className="flex flex-row justify-between">
           <h3 className="text-[hsl(210,40%,98%)] font-semibold mb-2 truncate">{title}</h3>
-          {collaborators > 0 && (
-            <div className="flex items-center gap-1.5 text-xs text-[hsl(215,20%,65%)]">
-              <Users className="w-3.5 h-3.5" />
-              <span>{collaborators}</span>
-            </div>
-          )}
+          {isAdmin ?  (
+            <ActionTooltip label="Manage Members" side="bottom">
+              <button
+                onClick={() => onOpen("user-list-modal", { isAdmin, members  })}
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs backdrop-blur-sm transition-all duration-200 bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] cursor-pointer hover:bg-[hsl(222,47%,18%)] hover:text-[hsl(210,40%,98%)] hover:shadow-[0_0_0_1px_hsl(210,40%,98%,0.15)] hover:scale-[1.03]"
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>{collaborators}</span>
+              </button>
+            </ActionTooltip>
+            ) : (
+              <button
+                disabled
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs backdrop-blur-sm bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] opacity-70 cursor-default "
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>{collaborators}</span>
+              </button>
+            )
+          }
         </div>
       </div>
     </div>

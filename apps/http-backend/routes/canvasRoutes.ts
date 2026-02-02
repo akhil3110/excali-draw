@@ -124,6 +124,81 @@ export async function AddUsersToCanvasRoute(req: Request, res: Response) {
 }
 
 
+export async function deleteUserFromCanvasRoute(req: Request, res: Response) {
+    try {
+        const {id,canvasId} = req.params
+
+        if(!id || !canvasId){
+            return res.json({
+                message: "params mising"
+            }).status(403)
+        }
+
+        if(!req.userId) {
+            return res.json({
+                message: "Unauthorized access"
+            }).status(403)
+        }
+
+        const canvasExist = await db.query.canvas.findFirst({
+            where: (canvas, {eq}) => eq(canvas.id, parseInt(canvasId))
+        })
+
+        if(!canvasExist){
+            return res.json({
+                message: "Canvas does not exists"
+            }).status(403)
+        }
+
+        const isUserAdmin = await db.query.canvas.findFirst({
+            where: (canvas, {eq}) => (
+                and (
+                    eq(canvas.id, parseInt(canvasId)),
+                    eq(canvas.adminId, req.userId!)
+                )
+            )
+        })
+        
+        if(!isUserAdmin){
+            return res.json({
+                message: "Unauthorized access"
+            }).status(403)
+        }
+
+        const isUserMember = await db.query.canvasUsers.findFirst({
+            where: (canvasUsers, {eq}) => (
+                and (
+                    eq(canvasUsers.canvasId,canvasExist.id),
+                    eq(canvasUsers.memberId,id)
+                )
+            )
+        })
+
+        if(!isUserMember){
+            return res.json({
+                message: "User not found",
+                userNotFound: true
+            }).status(403)
+        }
+
+        const deletedMember = await db.delete(canvasUsers).where(
+            and(
+                eq(canvasUsers.canvasId,canvasExist.id),
+                eq(canvasUsers.memberId,id)
+            )
+        ).returning()
+
+        return res.json({
+            deletedMember,
+            message: "User removed successfully"
+        })
+
+    }catch (error) {
+        console.log(error)
+    }
+}
+
+
 export async function getAllCanvasRoute(req: Request, res: Response) {
     try {
          if(!req.userId){
@@ -143,7 +218,17 @@ export async function getAllCanvasRoute(req: Request, res: Response) {
         const canvases = await db.query.canvas.findMany({
             where: (canvas,{eq}) => eq(canvas.adminId,req.userId!),
             with: {
-                canvasUsers: true,
+                canvasUsers: {
+                    with: {
+                        user: {
+                            columns: {
+                                id: true,
+                                name: true,
+                                email: true
+                            }
+                        }
+                    }
+                },
                 admin: {
                     columns: {
                         email: true,
@@ -164,7 +249,22 @@ export async function getAllCanvasRoute(req: Request, res: Response) {
                     )
                 ),
                 with: {
-                    canvasUsers: true,
+                    canvasUsers: {
+                        columns: {
+                            memberId: false,
+                            canvasId: false,
+                            id: true
+                        },
+                        with: {
+                            user: {
+                                columns: {
+                                    id: true,
+                                    name: true,
+                                    email: true
+                                }
+                            }
+                        }
+                    },
                     admin: {
                         columns: {
                             email: true,

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Square, Circle, ArrowLeft, ArrowRight, ArrowDownRight, MousePointer, Eraser, Text, Type, Pencil, Trash2 } from "lucide-react";
+import { Square, Circle, ArrowLeft, ArrowRight, ArrowDownRight, MousePointer, Eraser, Text, Type, Pencil, Trash2, User2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ActionTooltip from "./action-tooltip";
 import { useEffect } from "react";
@@ -16,7 +16,7 @@ const tools = [
   { id: "eraser", icon: Eraser, key: "7", label: "Eraser" },
 ];
 
-export default function TopToolbar({ tool, setTool,onClear,admin }: any) {
+export default function TopToolbar({ tool, setTool,onClear,admin, onManageUsers }: any) {
     const router = useRouter();
     
     useEffect(() => {   
@@ -74,18 +74,29 @@ export default function TopToolbar({ tool, setTool,onClear,admin }: any) {
         })}
         </div>
         {/* {admin && ( */}
-            <ActionTooltip label="Clear Canvas">
-                <div className="fixed top-4 right-4 z-50">
-                    <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={onClear}
-                        className="font-extrabold"
-                    >
-                        <Trash2 className="h-5 w-5" />
-                    </Button>
+            <div className="fixed top-4 right-4 z-50">
+                <div className="flex flex-col gap-y-2">
+                    <ActionTooltip label="Clear Canvas">
+                        <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={onClear}
+                            className="font-extrabold"
+                        >
+                            <Trash2 className="h-5 w-5" />
+                        </Button>
+                    </ActionTooltip>
+                    {/* <ActionTooltip label="Manage Users" side="bottom">
+                        <Button
+                            size="icon"
+                            onClick={onManageUsers}
+                            className="font-extrabold"
+                        >
+                            <Users className="h-5 w-5" />
+                        </Button>
+                    </ActionTooltip> */}
                 </div>
-            </ActionTooltip>
+            </div>
         {/* )} */}
     </>
   );

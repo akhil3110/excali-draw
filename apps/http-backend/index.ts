@@ -7,7 +7,7 @@ import { getAllUsersRoute, userSignInRoute, userSignOutRoute, userSignUpRoute } 
 import { createRoomRoute, getAllRoomsRoute, getRoomRoute } from "./routes/roomRoutes";
 import { getRoomChatsRoute } from "./routes/chatRoutes";
 import cookieParser from "cookie-parser";
-import { AddUsersToCanvasRoute, createCanvasRoute, deleteCanvasRoute, getAllCanvasRoute, getCanvasByIdRoute } from "./routes/canvasRoutes";
+import { AddUsersToCanvasRoute, createCanvasRoute, deleteCanvasRoute, deleteUserFromCanvasRoute, getAllCanvasRoute, getCanvasByIdRoute } from "./routes/canvasRoutes";
 import { createShapesRoute, deleteAllShapesInCanvasRoute, deleteShapesByIdRoute, getAllShapesInCanvasRoute, moveShapeByIdRoute } from "./routes/shapesRoute";
 
 
@@ -53,6 +53,7 @@ app.post("/create-canvas",middleware,createCanvasRoute)
 app.get("/canvas", middleware,getAllCanvasRoute)
 app.delete("/canvas/:id",middleware,deleteCanvasRoute)
 app.put("/canvas/addUser/:id",middleware,AddUsersToCanvasRoute)
+app.delete("/canvas/deleteUser/:canvasId/:id",middleware,deleteUserFromCanvasRoute)
 app.get("/canvas/:id",middleware,getCanvasByIdRoute)
 
 //shapes routes

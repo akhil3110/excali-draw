@@ -58,7 +58,7 @@ const Dashboard = ({
         }
         
 
-        
+        console.log(data.data)
         if(data.data.canvases){
           setWhiteboards(data.data.canvases)
         }
@@ -183,6 +183,9 @@ const Dashboard = ({
                   collaborators={Number(board.canvasUsers.length+1)}
                   isFavorite={board.isFavorite}
                   isShared={board.isShared}
+                  isAdmin = {board.adminId === userId}
+                  email= {board.admin.email}
+                  members={board.canvasUsers}
                 />
               ))}
             </div>
@@ -211,6 +214,7 @@ const Dashboard = ({
                       collaborators={Number(board.canvasUsers.length+1)}
                       isFavorite={board.isFavorite}
                       isShared={board.isShared}
+                      isAdmin = {board.adminId === userId}
                     />
                   ))}
               </div>

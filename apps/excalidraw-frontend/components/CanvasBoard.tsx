@@ -9,6 +9,7 @@ import { backendUrl } from "@/config";
 import { isUserAdmin } from "@/lib/isUserAdmin";
 import { CanvasLoader } from "./CanvasLoader";
 import toast from "react-hot-toast";
+import useModalStore from "@/store/modal-store";
 
 
 type Shapes = {
@@ -56,6 +57,8 @@ const CanvasBoard = ({ canvasId, token }: any) => {
   const [hydrated, setHydrated] = useState(false);
   const [tool, setTool] = useState<"rectangle" | "circle" | "arrow" | "select" | "eraser"| "text" | "pencil">("select");
   const [isClearing, setIsClearing] = useState(false);
+
+  const {onOpen} = useModalStore()
 
   async function fetchExistingShapes(canvasId: string) {
     const res = await axios.get(`${backendUrl}/shapes/${canvasId}`,{
@@ -247,6 +250,9 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     }
   };
 
+  const onManageUsers = () => {
+    onOpen("user-list-modal",{canvasId})
+  }
 
   const isReady = loading || hydrated;
   
@@ -254,7 +260,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
   return (
     <div className="fixed inset-0 overflow-hidden">
       {!isReady && <CanvasLoader/>}
-      <TopToolbar tool={tool} setTool={setTool} onClear={clearCanvas} />
+      <TopToolbar tool={tool} setTool={setTool} onClear={clearCanvas} onManageUsers={onManageUsers}  />
       <canvas ref={canvasRef} className="absolute inset-0" />
       {isClearing && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm pointer-events-auto">
