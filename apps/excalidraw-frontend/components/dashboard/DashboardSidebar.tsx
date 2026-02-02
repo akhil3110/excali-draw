@@ -1,5 +1,5 @@
 "use client";
-import { Home, FolderOpen, Star, Clock, Users, Settings, HelpCircle, Plus, Trash2, X, User, LayoutDashboard } from "lucide-react";
+import { Home, FolderOpen, Star, Clock, Users, Settings, HelpCircle, Plus, Trash2, X, User, LayoutDashboard, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -91,9 +91,8 @@ const DashboardSidebar = ({ isOpen, onClose, token, userId,name,count, yourBoard
         {/* Logo */}
         <div  className="p-6 border-b border-[hsl(222,47%,25%)] flex items-center justify-between cursor-pointer">
           <div onClick={() => router.push("/")} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(174,72%,56%)] to-[hsl(270,60%,65%)] flex items-center justify-center">
-              <span className="text-[hsl(222,47%,11%)] font-bold text-lg">S</span>
-            </div>
+            
+             <Pencil className="h-5 w-5 text-[hsl(174,72%,56%)]" />
             <span className="text-xl font-bold text-[hsl(210,40%,98%)]">SketchFlow</span>
           </div>
           {/* Close button for mobile */}

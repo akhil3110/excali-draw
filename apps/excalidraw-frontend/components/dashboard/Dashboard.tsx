@@ -121,12 +121,6 @@ const Dashboard = ({
             </div>
             <div className={`flex items-center mb-4 justify-between`}>
               <div className="flex flex-row gap-x-3">
-                <button 
-                  onClick={handleCreateCanvas} 
-                  className="text-sm text-[hsl(174,72%,56%)] hover:text-[hsl(174,72%,66%)] transition-colors hover:underline cursor-pointer"
-                >
-                  Create Canvas
-                </button>
                 <div className="hidden sm:flex items-center bg-[hsl(222,47%,20%)] rounded-md p-1">
                   <button
                     onClick={() => setViewMode("grid")}

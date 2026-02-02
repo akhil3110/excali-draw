@@ -267,61 +267,61 @@ export function draw(
         };
     };
 
-    socket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
+    // socket.onmessage = (event) => {
+    //     const message = JSON.parse(event.data);
 
-        // if (message.type !== "chat") return;
-        if(message.type !== "shapes") return
+    //     // if (message.type !== "chat") return;
+    //     if(message.type !== "shapes") return
 
         
-        const data = JSON.parse(message.message)
+    //     const data = JSON.parse(message.message)
         
 
-        if (!data || !data.shape || !data.shape.id) {
-            return;
-        }
+    //     if (!data || !data.shape || !data.shape.id) {
+    //         return;
+    //     }
 
-        if (data.action === "delete") {
-            const shape = data.shape
+    //     if (data.action === "delete") {
+    //         const shape = data.shape
 
-            const index = existingShapes.findIndex(
-                (s) => s.id === shape.id
-            );
+    //         const index = existingShapes.findIndex(
+    //             (s) => s.id === shape.id
+    //         );
 
-            if (index !== -1) {
-                existingShapes.splice(index, 1);
-            } 
+    //         if (index !== -1) {
+    //             existingShapes.splice(index, 1);
+    //         } 
 
-            if(selectedShape?.id === shape.id){
-                selectedShape = null
-                selectedShapeIndex = null
-            }
+    //         if(selectedShape?.id === shape.id){
+    //             selectedShape = null
+    //             selectedShapeIndex = null
+    //         }
 
-            clearCanvas(existingShapes, ctx, canvas, selectedShape);
-            return;
-        }
+    //         clearCanvas(existingShapes, ctx, canvas, selectedShape);
+    //         return;
+    //     }
 
-        const shape = data.shape;
-        const index = existingShapes.findIndex(
-            (s) => s.id === shape.id
-        );
+    //     const shape = data.shape;
+    //     const index = existingShapes.findIndex(
+    //         (s) => s.id === shape.id
+    //     );
 
-        if (index === -1) {
-            // New shape
-            existingShapes.push(shape);
-        } else {
-            // Existing shape moved / updated
-            existingShapes[index] = shape;
-        }
+    //     if (index === -1) {
+    //         // New shape
+    //         existingShapes.push(shape);
+    //     } else {
+    //         // Existing shape moved / updated
+    //         existingShapes[index] = shape;
+    //     }
 
-        clearCanvas(existingShapes, ctx, canvas, selectedShape);
+    //     clearCanvas(existingShapes, ctx, canvas, selectedShape);
 
-        // if (message.type === "chat") {
-        //     const data = JSON.parse(message.message);
-        //     existingShapes.push(data.shape);
-        //     clearCanvas(existingShapes, ctx, canvas, selectedShape);
-        // }
-    };
+    //     // if (message.type === "chat") {
+    //     //     const data = JSON.parse(message.message);
+    //     //     existingShapes.push(data.shape);
+    //     //     clearCanvas(existingShapes, ctx, canvas, selectedShape);
+    //     // }
+    // };
 
     canvas.onmousedown = (e) => {
         const { x, y } = getMousePos(e);
@@ -599,15 +599,17 @@ export function draw(
             //         roomId
             //     })
             // )
-            socket.send(
+            if(selectedShape){
+                socket.send(
                 JSON.stringify({
                     type: "shapes",
                     message: JSON.stringify({
-                        shape: selectedShape
+                        shape: selectedShape,
+                        action: "update"
                     }),
                     roomId
-                })
-            )
+                }))    
+            }
 
             isDragging = false;
 
@@ -668,7 +670,7 @@ export function draw(
         //     type: "chat",
         //     message: JSON.stringify({ shape }),
         //     roomId,
-        // }));
+        // })); 
         socket.send(
             JSON.stringify({
             type: "shapes",

@@ -126,12 +126,33 @@ wss.on('connection', function connection(ws,request) {
             }
         }
 
+        
+        if (parsedData.type === "canvas_cleared") {
+            const roomId = parsedData.canvasId;
+
+            users.forEach((u) => {
+                if (u.rooms.includes(roomId) && u.ws !== ws) {
+                    u.ws.send(JSON.stringify({
+                        type: "canvas_cleared",
+                        canvasId: roomId,
+                    }));
+                }
+            });
+
+            return;
+        }
+
         if(parsedData.type === "shapes"){
             try {
             console.log("Shape recieved")
             const roomId  = parsedData.roomId
             const shape = parsedData.message
             const message = JSON.parse(parsedData.message)
+
+            if (!message.shape) {
+                console.log("❌ Skipping null shape update");
+                return;
+            }
 
             //queu implementetion
            const payload = {

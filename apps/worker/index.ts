@@ -60,12 +60,17 @@ async function worker() {
                     }
 
                     if(job.action === "delete"){
-                        await db.delete(shapes).where(
-                            and(
-                                eq(shapes.id, shapeId),
-                                eq(shapes.userId, job.userId)
-                            )
-                        )
+                        await db.delete(shapes).where(eq(shapes.id, shapeId))
+                        break;
+                    }
+
+                    if(job.action === "update"){
+                        try {
+                            console.log("update")
+                            await db.update(shapes).set({data: shape}).where(eq(shapes.id, shapeId))
+                        } catch (error) {
+                            console.log(error)
+                        }
                         break;
                     }
 

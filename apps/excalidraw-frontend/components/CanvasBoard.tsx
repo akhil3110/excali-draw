@@ -8,6 +8,7 @@ import axios from "axios";
 import { backendUrl } from "@/config";
 import { isUserAdmin } from "@/lib/isUserAdmin";
 import { CanvasLoader } from "./CanvasLoader";
+import toast from "react-hot-toast";
 
 
 type Shapes = {
@@ -53,8 +54,8 @@ const CanvasBoard = ({ canvasId, token }: any) => {
   const hydratedRef = useRef(false);
 
   const [hydrated, setHydrated] = useState(false);
-  
   const [tool, setTool] = useState<"rectangle" | "circle" | "arrow" | "select" | "eraser"| "text" | "pencil">("select");
+  const [isClearing, setIsClearing] = useState(false);
 
   async function fetchExistingShapes(canvasId: string) {
     const res = await axios.get(`${backendUrl}/shapes/${canvasId}`,{
@@ -136,22 +137,67 @@ const CanvasBoard = ({ canvasId, token }: any) => {
       try {
         const msg = JSON.parse(event.data);
 
-        if (msg.type === "canvas_cleared" && msg.canvasId === canvasId) {
-          shapesRef.current = [];
+        if(msg.type === "canvas_cleared"){
+            shapesRef.current = [];
+            setIsClearing(false)
 
-          const canvas = canvasRef.current;
-          if (canvas) {
-            const ctx = canvas.getContext("2d");
-            if (ctx) {
-              ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const canvas = canvasRef.current;
+            if (canvas) {
+                const ctx = canvas.getContext("2d");
+                if (ctx) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
             }
-          }
+            return;
         }
-      } catch (error) {
+
+        if (msg.type !== "shapes") return;
+
+        const data = JSON.parse(msg.message);
+        if (!data || !data.shape || !data.shape.id) return;
+
+        const existingShapes = shapesRef.current;
+
+
+        if (data.action === "delete") {
+          const index = existingShapes.findIndex(
+            (s) => s.id === data.shape.id
+          );
+
+          if (index !== -1) {
+            existingShapes.splice(index, 1);
+          }
+          return;
+        }
+
+        const index = existingShapes.findIndex(
+          (s) => s.id === data.shape.id
+        );
+
+        if (index === -1) {
+          // new shape
+          existingShapes.push(data.shape);
+        } else {
+          // moved / updated shape
+          existingShapes[index] = data.shape;
+        }
+      }   catch (error) {
         console.log(error);
       }
-    }
-    
+    };
+
+    const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          shapesRef.current.forEach((shape) => {
+            // force redraw by re-running draw
+            draw(canvas, canvasId, socket!, tool, shapesRef, () => {});
+          });
+        }
+      }
 
     socket.addEventListener("message", handleMessage);
     
@@ -162,6 +208,15 @@ const CanvasBoard = ({ canvasId, token }: any) => {
 
   const clearCanvas = async () => {
     try {
+
+      if(shapesRef.current.length === 0) {
+        return toast.error("Canvas is empty. Nothing to clear.",{
+          duration:2000,
+          position: "bottom-right"
+        })
+      }
+
+      setIsClearing(true)
       await axios.delete(
         `${backendUrl}/shapes/deleteAll/${canvasId}`,
         { withCredentials: true }
@@ -169,6 +224,14 @@ const CanvasBoard = ({ canvasId, token }: any) => {
 
       // Optimistic update
       shapesRef.current = [];
+
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
 
       socket?.send(
         JSON.stringify({
@@ -179,6 +242,8 @@ const CanvasBoard = ({ canvasId, token }: any) => {
 
     } catch (err) {
       console.error("Failed to clear canvas", err);
+    } finally {
+      setIsClearing(false)
     }
   };
 
@@ -191,6 +256,16 @@ const CanvasBoard = ({ canvasId, token }: any) => {
       {!isReady && <CanvasLoader/>}
       <TopToolbar tool={tool} setTool={setTool} onClear={clearCanvas} />
       <canvas ref={canvasRef} className="absolute inset-0" />
+      {isClearing && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm pointer-events-auto">
+          <div className="flex items-center gap-3 rounded-xl bg-white/90 px-6 py-4 shadow-lg">
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-black" />
+            <span className="text-sm font-medium text-gray-800">
+              Clearing your canvas…
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
