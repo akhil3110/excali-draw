@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Square, Circle, ArrowLeft, ArrowRight, ArrowDownRight, MousePointer, Eraser, Text, Type, Pencil, Trash2, User2, Users } from "lucide-react";
+import { Square, Circle, ArrowLeft, ArrowRight, ArrowDownRight, MousePointer, Eraser, Text, Type, Pencil, Trash2, User2, Users, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ActionTooltip from "./action-tooltip";
 import { useEffect } from "react";
@@ -16,7 +16,7 @@ const tools = [
   { id: "eraser", icon: Eraser, key: "7", label: "Eraser" },
 ];
 
-export default function TopToolbar({ tool, setTool,onClear,admin, onManageUsers }: any) {
+export default function TopToolbar({ tool, setTool,onClear,admin, onManageUsers,onDownload }: any) {
     const router = useRouter();
     
     useEffect(() => {   
@@ -78,12 +78,20 @@ export default function TopToolbar({ tool, setTool,onClear,admin, onManageUsers 
                 <div className="flex flex-col gap-y-2">
                     <ActionTooltip label="Clear Canvas">
                         <Button
-                            variant="destructive"
                             size="icon"
                             onClick={onClear}
-                            className="font-extrabold"
+                            className="group h-11 w-11 rounded-xl bg-transparent border-2 border-red-500/70 flex items-center justify-center transition-all duration-200 hover:bg-red-500/10 hover:border-red-500 active:scale-95"
                         >
-                            <Trash2 className="h-5 w-5" />
+                            <Trash2 className="h-5 w-5 text-red-400 transition-colors group-hover:text-red-500" />
+                        </Button>
+                    </ActionTooltip>
+                    <ActionTooltip label="Download Canvas" side="bottom">
+                        <Button
+                            size="icon"
+                            onClick={onDownload}
+                             className="group h-11 w-11 rounded-xl bg-transparent border-2 border-[#d3d3d3] flex items-center justify-center transition-all duration-200 hover:bg-[#d3d3d3]/10 active:scale-95"
+                        >
+                            <Download className="h-5 w-5  text-[#d3d3d3] transition-colors  group-hover:text-white" />
                         </Button>
                     </ActionTooltip>
                     {/* <ActionTooltip label="Manage Users" side="bottom">

@@ -253,6 +253,17 @@ const CanvasBoard = ({ canvasId, token }: any) => {
   const onManageUsers = () => {
     onOpen("user-list-modal",{canvasId})
   }
+  
+  const downloadCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const link = document.createElement("a");
+    link.download = `canvas-${canvasId}.png`;
+    link.href = canvas.toDataURL("image/png");
+
+    link.click();
+  };
 
   const isReady = loading || hydrated;
   
@@ -260,7 +271,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
   return (
     <div className="fixed inset-0 overflow-hidden">
       {!isReady && <CanvasLoader/>}
-      <TopToolbar tool={tool} setTool={setTool} onClear={clearCanvas} onManageUsers={onManageUsers}  />
+      <TopToolbar tool={tool} setTool={setTool} onClear={clearCanvas} onManageUsers={onManageUsers} onDownload={downloadCanvas}  />
       <canvas ref={canvasRef} className="absolute inset-0" />
       {isClearing && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm pointer-events-auto">
