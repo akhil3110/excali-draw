@@ -119,9 +119,11 @@ function isPointInText(
   t: any,
   ctx: CanvasRenderingContext2D
 ) {
-  ctx.font = `${t.fontSize}px Arial`;
-  const width = ctx.measureText(t.text).width;
-  const height = t.fontSize;
+  const { width, height } = getTextBounds(
+    ctx,
+    t.text,
+    t.fontSize
+  );
 
   return (
     x >= t.x &&
@@ -212,9 +214,12 @@ export function drawSelectionOutline(
     }
 
     if(shape.type === "text"){
-        ctx.font = `${shape.fontSize}px Arial`
-        const width = ctx.measureText(shape.text).width
-        const height = shape.fontSize
+        const { width, height } = getTextBounds(
+            ctx,
+            shape.text,
+            shape.fontSize
+        );
+
 
         ctx.strokeRect(
             shape.x -4,
@@ -244,6 +249,19 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shapes) {
     // add arrow, text, pencil if needed
   }
 }
+
+export function getTextBounds(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  fontSize: number
+) {
+  ctx.font = `${fontSize}px Arial`;
+  return {
+    width: ctx.measureText(text).width,
+    height: fontSize,
+  };
+}
+
 
 
 export function draw(

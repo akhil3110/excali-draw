@@ -1,6 +1,6 @@
 "use client";
 
-import { clearCanvas, draw, drawSelectionOutline, drawShape, Shapes } from "@/draw";
+import { clearCanvas, draw, drawSelectionOutline, drawShape, getTextBounds, Shapes } from "@/draw";
 import { useSockets } from "@/hooks/useSockets";
 import { useEffect, useRef, useState } from "react";
 import TopToolbar from "./TopToolbar";
@@ -12,8 +12,6 @@ import toast from "react-hot-toast";
 import useModalStore from "@/store/modal-store";
 import ShapePalette from "./ShapePalette";
 import { AnimatePresence } from "framer-motion";
-
-
 
 
 const CanvasBoard = ({ canvasId, token }: any) => {
@@ -285,6 +283,31 @@ const CanvasBoard = ({ canvasId, token }: any) => {
             shape={selectedShape}
             onChange={(updates) => {
               if(!selectedShape) return
+
+              let remainingUpdates = {...updates}
+
+              if(selectedShape.type === "text" && "fontSize" in updates &&  typeof updates.fontSize === "number"){
+                const canvas = canvasRef.current
+                if(!canvas) return
+
+                const ctx = canvas.getContext("2d")
+                if(!ctx) return
+
+                const oldBounds = getTextBounds(ctx,selectedShape.text,selectedShape.fontSize)
+
+                const centerX = selectedShape.x + oldBounds.width / 2;
+                const centerY = selectedShape.y + oldBounds.height / 2;
+
+                selectedShape.fontSize = updates.fontSize
+
+                const newBounds  = getTextBounds(ctx,selectedShape.text,selectedShape.fontSize)
+
+                selectedShape.x = centerX - newBounds.width / 2;
+                selectedShape.y = centerY - newBounds.height / 2;
+
+                delete (remainingUpdates as any).fontSize
+              }
+
 
               Object.assign(selectedShape, updates);
               setActiveStyle((prev) => ({...prev, ...updates}))
