@@ -1,48 +1,55 @@
 import { v4 as uuidv4 } from "uuid";
 
 
-type InteractionMode =
-  | "idle"
-  | "drawing"
-  | "moving"
-  | "resizing"
-  | "rotating";
 
   
-export type Shapes = {
-    id?: string;        // DB id (after save)
-  tempId?: string;
-    type: 'rectangle' ;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-} | {
-    id:string
-    type: 'circle' ;
-    x: number;
-    y: number;
-    radius: number;
-} | {
-    id:string
-    type: "arrow";
-    startX: number;
-    startY: number;
-    endX: number;
-    endY: number;
-} | {
-    id:string
-    type: "text";
-    x: number;
-    y: number;
-    text: string
-    fontSize: number;
-} | {
-    id: string
-    type: "pencil"
-    points: { x: number; y: number }[]
-}
-
+export type Shapes =
+  | {
+      id: string;
+      type: "rectangle";
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      strokeColor?: string;
+      strokeWidth?: number;
+    }
+  | {
+      id: string;
+      type: "circle";
+      x: number;
+      y: number;
+      radius: number;
+      strokeColor?: string;
+      strokeWidth?: number;
+    }
+  | {
+      id: string;
+      type: "arrow";
+      startX: number;
+      startY: number;
+      endX: number;
+      endY: number;
+      strokeColor?: string;
+      strokeWidth?: number;
+    }
+  | {
+      id: string;
+      type: "text";
+      x: number;
+      y: number;
+      text: string;
+      fontSize: number;
+      strokeColor?: string;
+      strokeWidth?: number;
+    }
+  | {
+      id: string;
+      type: "pencil";
+      points: { x: number; y: number }[];
+      strokeColor?: string;
+      strokeWidth?: number;
+    };
 
 
 // const existingShapes: Shapes[] = [];
@@ -112,9 +119,11 @@ function isPointInText(
   t: any,
   ctx: CanvasRenderingContext2D
 ) {
-  ctx.font = `${t.fontSize}px Arial`;
-  const width = ctx.measureText(t.text).width;
-  const height = t.fontSize;
+  const { width, height } = getTextBounds(
+    ctx,
+    t.text,
+    t.fontSize
+  );
 
   return (
     x >= t.x &&
@@ -160,7 +169,7 @@ function isPointNearPencil(
 }
 
 
-function drawSelectionOutline(
+export function drawSelectionOutline(
   ctx: CanvasRenderingContext2D,
   shape: Shapes
 ) {
@@ -205,9 +214,12 @@ function drawSelectionOutline(
     }
 
     if(shape.type === "text"){
-        ctx.font = `${shape.fontSize}px Arial`
-        const width = ctx.measureText(shape.text).width
-        const height = shape.fontSize
+        const { width, height } = getTextBounds(
+            ctx,
+            shape.text,
+            shape.fontSize
+        );
+
 
         ctx.strokeRect(
             shape.x -4,
@@ -221,6 +233,35 @@ function drawSelectionOutline(
 }
 
 
+export function drawShape(ctx: CanvasRenderingContext2D, shape: Shapes) {
+  ctx.strokeStyle = shape.strokeColor || "#D3D3D3";
+  ctx.lineWidth = shape.strokeWidth || 2;
+
+  switch (shape.type) {
+    case "rectangle":
+      ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+      break;
+    case "circle":
+      ctx.beginPath();
+      ctx.arc(shape.x, shape.y, shape.radius || 0, 0, 2 * Math.PI);
+      ctx.stroke();
+      break;
+    // add arrow, text, pencil if needed
+  }
+}
+
+export function getTextBounds(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  fontSize: number
+) {
+  ctx.font = `${fontSize}px Arial`;
+  return {
+    width: ctx.measureText(text).width,
+    height: fontSize,
+  };
+}
+
 
 
 export function draw(
@@ -229,6 +270,9 @@ export function draw(
   socket: WebSocket,
   tool: "rectangle" | "circle" | 'arrow' | 'select' | 'eraser'| "text" | "pencil" ,
   shapesRef: React.MutableRefObject<Shapes[]>,
+  selectedShapeId: string | null,
+  setSelectedShapeId: (id: string | null) => void,
+  activeStyle: { strokeColor: string; strokeWidth: number },
   onShapeCreated?: () => void
 ) {
     const ctx = canvas.getContext("2d");
@@ -332,7 +376,9 @@ export function draw(
             currentPencilShape = {
                 id:  uuidv4(),
                 type: "pencil",
-                points: [{x,y}]
+                points: [{x,y}],
+                strokeColor: activeStyle.strokeColor,
+                strokeWidth: activeStyle.strokeWidth,
             };
 
             existingShapes.push(currentPencilShape)
@@ -411,6 +457,7 @@ export function draw(
 
             if (selectedShapeIndex !== null) {
                 selectedShape = existingShapes[selectedShapeIndex]
+                setSelectedShapeId(selectedShape?.id)
                 isDragging = true;
 
                 if (selectedShape.type === "rectangle" || selectedShape.type === "circle") {
@@ -634,6 +681,9 @@ export function draw(
                 y: startY,
                 width: x - startX,
                 height: y - startY,
+                strokeColor: activeStyle.strokeColor,
+                strokeWidth: activeStyle.strokeWidth,
+
             };
         }
 
@@ -644,6 +694,8 @@ export function draw(
                 x: startX,
                 y: startY,
                 radius: Math.hypot(x - startX, y - startY),
+                strokeColor: activeStyle.strokeColor,
+                strokeWidth: activeStyle.strokeWidth,
             };
         }
 
@@ -657,7 +709,9 @@ export function draw(
                 startX,
                 startY,
                 endX,
-                endY
+                endY,
+                strokeColor: activeStyle.strokeColor,
+                strokeWidth: activeStyle.strokeWidth,
             };
         }
 
@@ -695,18 +749,22 @@ export function draw(
 }
 
 
-function clearCanvas(
+export function clearCanvas(
     existingShapes: Shapes[],
     ctx: CanvasRenderingContext2D,
     canvas: HTMLCanvasElement,
     selectedShape?: Shapes | null
 ) {
     ctx.clearRect(0,0,canvas.width, canvas.height);
-    canvas.style.backgroundColor = '#121212';
-    ctx.strokeStyle = '#D3D3D3';
+    
     ctx.setLineDash([]);
 
     existingShapes.map((shape) => {
+        ctx.strokeStyle = shape.strokeColor ?? "#D3D3D3";
+        ctx.lineWidth = shape.strokeWidth ?? 2;
+        ctx.fillStyle = shape.strokeColor ?? "#D3D3D3";
+
+        
         if(shape.type === 'rectangle'){
             ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
         } else if (shape.type === "circle") {
@@ -722,7 +780,7 @@ function clearCanvas(
                 shape.endY
             );
         } else if(shape.type === "text"){
-            ctx.fillStyle = "#D3D3D3"
+            ctx.fillStyle = shape.strokeColor ?? "#D3D3D3";
             ctx.font = `${shape.fontSize}px Arial`
             ctx.textBaseline = "top"
             ctx.fillText(shape.text, shape.x, shape.y)

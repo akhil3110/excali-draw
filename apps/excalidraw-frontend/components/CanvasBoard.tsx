@@ -1,6 +1,6 @@
 "use client";
 
-import { draw } from "@/draw";
+import { clearCanvas, draw, drawSelectionOutline, drawShape, getTextBounds, Shapes } from "@/draw";
 import { useSockets } from "@/hooks/useSockets";
 import { useEffect, useRef, useState } from "react";
 import TopToolbar from "./TopToolbar";
@@ -10,41 +10,8 @@ import { isUserAdmin } from "@/lib/isUserAdmin";
 import { CanvasLoader } from "./CanvasLoader";
 import toast from "react-hot-toast";
 import useModalStore from "@/store/modal-store";
-
-
-type Shapes = {
-    id: string
-    type: 'rectangle' ;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-} | {
-    id: string
-    type: 'circle' ;
-    x: number;
-    y: number;
-    radius: number;
-} | {
-    id: string
-    type: 'arrow';
-    startX: number;
-    startY: number;
-    endX: number;
-    endY: number;
-} | {
-    id:string
-    type: "text";
-    x: number;
-    y: number;
-    text: string
-    fontSize: number;
-} | {
-    id: string
-    type: "pencil"
-    points: { x: number; y: number }[]
-}
-
+import ShapePalette from "./ShapePalette";
+import { AnimatePresence } from "framer-motion";
 
 
 const CanvasBoard = ({ canvasId, token }: any) => {
@@ -57,6 +24,13 @@ const CanvasBoard = ({ canvasId, token }: any) => {
   const [hydrated, setHydrated] = useState(false);
   const [tool, setTool] = useState<"rectangle" | "circle" | "arrow" | "select" | "eraser"| "text" | "pencil">("select");
   const [isClearing, setIsClearing] = useState(false);
+  const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null);
+  const [activeStyle, setActiveStyle] = useState({
+    strokeColor: "#D3D3D3",
+    strokeWidth: 2,
+  });
+  
+
 
   const {onOpen} = useModalStore()
 
@@ -124,7 +98,17 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    const cleanup = draw(canvas, canvasId, socket, tool, shapesRef,() => {setTool("select")});
+    const cleanup = draw(
+      canvas, 
+      canvasId, 
+      socket, 
+      tool, 
+      shapesRef,
+      selectedShapeId,
+      setSelectedShapeId,
+      activeStyle,
+      () => {setTool("select")}
+    );
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
@@ -195,9 +179,10 @@ const CanvasBoard = ({ canvasId, token }: any) => {
         if (ctx) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+          
           shapesRef.current.forEach((shape) => {
             // force redraw by re-running draw
-            draw(canvas, canvasId, socket!, tool, shapesRef, () => {});
+            draw(canvas, canvasId, socket!, tool, shapesRef,selectedShapeId,setSelectedShapeId,activeStyle ,() => {});
           });
         }
       }
@@ -209,7 +194,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     };
   },[socket,canvasId]);
 
-  const clearCanvas = async () => {
+  const  clearAllShapes= async () => {
     try {
 
       if(shapesRef.current.length === 0) {
@@ -265,13 +250,86 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     link.click();
   };
 
+  const selectedShape = shapesRef.current.find(
+  (s) => s.id === selectedShapeId
+  );
   const isReady = loading || hydrated;
+
+  
+
+  const redraw = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    clearCanvas(
+      shapesRef.current,
+      ctx,
+      canvas,
+      selectedShape ?? null
+    );
+  };
   
 
   return (
     <div className="fixed inset-0 overflow-hidden">
+      <AnimatePresence>
+        { selectedShape && (
+          <ShapePalette
+            key={selectedShape.id}
+            shape={selectedShape}
+            onChange={(updates) => {
+              if(!selectedShape) return
+
+              let remainingUpdates = {...updates}
+
+              if(selectedShape.type === "text" && "fontSize" in updates &&  typeof updates.fontSize === "number"){
+                const canvas = canvasRef.current
+                if(!canvas) return
+
+                const ctx = canvas.getContext("2d")
+                if(!ctx) return
+
+                const oldBounds = getTextBounds(ctx,selectedShape.text,selectedShape.fontSize)
+
+                const centerX = selectedShape.x + oldBounds.width / 2;
+                const centerY = selectedShape.y + oldBounds.height / 2;
+
+                selectedShape.fontSize = updates.fontSize
+
+                const newBounds  = getTextBounds(ctx,selectedShape.text,selectedShape.fontSize)
+
+                selectedShape.x = centerX - newBounds.width / 2;
+                selectedShape.y = centerY - newBounds.height / 2;
+
+                delete (remainingUpdates as any).fontSize
+              }
+
+
+              Object.assign(selectedShape, updates);
+              setActiveStyle((prev) => ({...prev, ...updates}))
+
+              redraw();
+              socket?.send(
+                JSON.stringify({
+                    type: "shapes",
+                    message: JSON.stringify({
+                      shape: selectedShape,
+                      action: "update",
+                    }),
+                  roomId: canvasId,
+                })
+              );
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {!isReady && <CanvasLoader/>}
-      <TopToolbar tool={tool} setTool={setTool} onClear={clearCanvas} onManageUsers={onManageUsers} onDownload={downloadCanvas}  />
+      <TopToolbar tool={tool} setTool={setTool} onClear={clearAllShapes} onManageUsers={onManageUsers} onDownload={downloadCanvas}  />
       <canvas ref={canvasRef} className="absolute inset-0" />
       {isClearing && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm pointer-events-auto">
