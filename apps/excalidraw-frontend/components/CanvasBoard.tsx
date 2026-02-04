@@ -41,6 +41,9 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     return res.data; // array of Shapes
   }
 
+  
+
+
   useEffect(() => {
     if (!canvasId || hydratedRef.current) return;
 
@@ -116,6 +119,26 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     };
   }, [tool, socket,hydrated]);
 
+  const redrawCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const selected = shapesRef.current.find(
+      (s) => s.id === selectedShapeId
+    ) ?? null;
+
+    clearCanvas(
+      shapesRef.current,
+      ctx,
+      canvas,
+      selected
+    );
+};
 
   useEffect(() => {
     if(!socket) return
@@ -127,15 +150,8 @@ const CanvasBoard = ({ canvasId, token }: any) => {
         if(msg.type === "canvas_cleared"){
             shapesRef.current = [];
             setIsClearing(false)
-
-            const canvas = canvasRef.current;
-            if (canvas) {
-                const ctx = canvas.getContext("2d");
-                if (ctx) {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
-            }
-            return;
+            redrawCanvas()
+            return
         }
 
         if (msg.type !== "shapes") return;
@@ -154,7 +170,8 @@ const CanvasBoard = ({ canvasId, token }: any) => {
           if (index !== -1) {
             existingShapes.splice(index, 1);
           }
-          return;
+          redrawCanvas()
+          return
         }
 
         const index = existingShapes.findIndex(
@@ -168,6 +185,8 @@ const CanvasBoard = ({ canvasId, token }: any) => {
           // moved / updated shape
           existingShapes[index] = data.shape;
         }
+
+        redrawCanvas()
       }   catch (error) {
         console.log(error);
       }
@@ -257,23 +276,6 @@ const CanvasBoard = ({ canvasId, token }: any) => {
 
   
 
-  const redraw = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    clearCanvas(
-      shapesRef.current,
-      ctx,
-      canvas,
-      selectedShape ?? null
-    );
-  };
-  
-
   return (
     <div className="fixed inset-0 overflow-hidden">
       <AnimatePresence>
@@ -312,7 +314,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
               Object.assign(selectedShape, updates);
               setActiveStyle((prev) => ({...prev, ...updates}))
 
-              redraw();
+              redrawCanvas()
               socket?.send(
                 JSON.stringify({
                     type: "shapes",
