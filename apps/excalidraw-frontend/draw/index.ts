@@ -158,15 +158,71 @@ function getShapeIndexAtPoint(
   return null;
 }
 
+function distancePointToSegment(
+  px: number,
+  py: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+
+  if (dx === 0 && dy === 0) {
+    return Math.hypot(px - x1, py - y1);
+  }
+
+  const t =((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy);
+
+  const clampedT = Math.max(0, Math.min(1, t));
+
+  const closestX = x1 + clampedT * dx;
+  const closestY = y1 + clampedT * dy;
+
+  return Math.hypot(px - closestX, py - closestY);
+}
+
+
 function isPointNearPencil(
     x: number,
     y: number,
-    pencil: any
+    pencil: any,
+    tolerance =6
 ) {
-    return pencil.points.some((p: any) => {
-        return Math.hypot(p.x - x, p.y - y) < 10;
-    });
+    const points =pencil.points;
+
+    for(let i=0; i<points.length-1 ; i++){
+        const p1 = points[i];
+        const p2 = points[i+1]
+
+        const dist = distancePointToSegment(x,y,p1.x,p1.y,p2.x,p2.y)
+
+        if(dist <= tolerance) return true
+    }
 }
+
+function getPencilBounds(points: { x: number; y: number }[]) {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  points.forEach(p => {
+    minX = Math.min(minX, p.x);
+    minY = Math.min(minY, p.y);
+    maxX = Math.max(maxX, p.x);
+    maxY = Math.max(maxY, p.y);
+  });
+
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY
+  };
+}
+
 
 
 export function drawSelectionOutline(
@@ -227,6 +283,25 @@ export function drawSelectionOutline(
             width + 8,
             height + 8
         )
+    }
+
+    if(shape.type === "pencil"){
+        const bounds  =  getPencilBounds(shape.points)
+
+        ctx.save()
+        ctx.setLineDash([6,4])
+        ctx.strokeStyle = "#3b82f6";
+        ctx.lineWidth = 1;
+
+        ctx.strokeRect(
+            bounds.x - 4,
+            bounds.y - 4,
+            bounds.width + 8,
+            bounds.height + 8
+        )
+
+        ctx.restore()
+        return
     }
 
     ctx.restore();
@@ -427,13 +502,6 @@ export function draw(
 
                 existingShapes.push(shape)
 
-                // socket.send(
-                //     JSON.stringify({
-                //         type: "chat",
-                //         message: JSON.stringify({shape}),
-                //         roomId
-                //     })
-                // )
                 socket.send(
                     JSON.stringify({
                         type: "shapes",
@@ -475,6 +543,11 @@ export function draw(
                     dragOffsetY = y - selectedShape.y
                 }
 
+                if(selectedShape.type === "pencil"){
+                    lastMouseX = x
+                    lastMouseY = y
+                }
+
                 
 
                 clearCanvas(existingShapes, ctx, canvas, selectedShape);
@@ -512,15 +585,6 @@ export function draw(
 
                 clearCanvas(existingShapes,ctx,canvas, null)
 
-                // socket.send(
-                //     JSON.stringify({
-                //         type: "chat",
-                //         message: JSON.stringify({
-                //         action: "delete",
-                //         shape: deletedShape,
-                //     }),
-                //     roomId,
-                // }));
                 socket.send(
                     JSON.stringify({
                         type: "shapes",
@@ -579,6 +643,22 @@ export function draw(
                 selectedShape.endX = dx + w
                 selectedShape.endY = dy + h
             }
+
+            if(selectedShape.type === "pencil"){
+                const dx = x - lastMouseX
+                const dy = y - lastMouseY
+
+                selectedShape.points.forEach(p => {
+                    p.x +=dx;
+                    p.y +=dy
+                })
+
+                lastMouseX = x
+                lastMouseY = y
+
+                clearCanvas(existingShapes, ctx, canvas, selectedShape);
+                return
+            }
             clearCanvas(existingShapes, ctx, canvas, selectedShape);
             return
         }
@@ -613,15 +693,7 @@ export function draw(
     canvas.onmouseup = (e) => {
 
         if(tool === "pencil" && currentPencilShape){
-            // socket.send(
-            //     JSON.stringify({
-            //         type: "chat",
-            //         message: JSON.stringify({
-            //             shape: currentPencilShape
-            //         }),
-            //         roomId
-            //     })
-            // )
+            
             socket.send(
                 JSON.stringify({
                     type: "shapes",
@@ -637,15 +709,7 @@ export function draw(
         }
 
         if(tool === "select"){
-            // socket.send(
-            //     JSON.stringify({
-            //         type: "chat",
-            //         message: JSON.stringify({
-            //             shape: selectedShape
-            //         }),
-            //         roomId
-            //     })
-            // )
+           
             if(selectedShape){
                 socket.send(
                 JSON.stringify({
@@ -719,12 +783,6 @@ export function draw(
 
         existingShapes.push(shape);
 
-        // socket.send(
-        //     JSON.stringify({
-        //     type: "chat",
-        //     message: JSON.stringify({ shape }),
-        //     roomId,
-        // })); 
         socket.send(
             JSON.stringify({
             type: "shapes",
