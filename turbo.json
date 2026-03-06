@@ -10,7 +10,8 @@
     "REDIS_PORT",
     "REDIS_USERNAME",
     "REDIS_PASSWORD", 
-    "REDIS_DB"
+    "REDIS_DB",
+    "REDIS_URL"
   ],
   "tasks": {
     "build": {

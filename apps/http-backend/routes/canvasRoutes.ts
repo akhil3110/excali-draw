@@ -4,7 +4,7 @@ import { canvas, canvasUsers, chat, user } from "@repo/db/schema";
 import type { Request, Response } from "express";
 import { and, eq, exists } from "drizzle-orm";
 import { redisPublisher } from "@repo/redis/client";
-import { ca } from "zod/locales";
+
 
 
 export async function createCanvasRoute(req: Request,res: Response) {
@@ -202,14 +202,20 @@ export async function deleteUserFromCanvasRoute(req: Request, res: Response) {
 export async function getAllCanvasRoute(req: Request, res: Response) {
     try {
          if(!req.userId){
-            return res.json({
-                message: "Unauthorized access"
-            }).status(403)
+            return res.status(403).json({
+                message: "Unauthorized access 1"
+            })
         }
 
         const cacheKey = `canvases:${req.userId}`;
         
-        const cacheData = await redisPublisher.get(cacheKey);
+        let cacheData = null;
+
+        try {
+            cacheData = await redisPublisher.get(cacheKey);
+        } catch (err) {
+            console.log("Redis error:", err);
+        }
         
         if(cacheData){
             return res.json(JSON.parse(cacheData))
