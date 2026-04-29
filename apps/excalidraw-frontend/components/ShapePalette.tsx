@@ -3,6 +3,7 @@
 import { Shapes } from "@/draw";
 import clsx from "clsx";
 import { motion } from "motion/react";
+import { useEffect } from "react";
 
 const STROKE_COLORS = [
   "#D3D3D3",
@@ -24,19 +25,40 @@ const TEXT_SIZES = [
 const STROKE_WIDTHS = [1, 2, 4, 6];
 
 export default function ShapePalette({
-  shape,
-  onChange,
+    shape,
+    onChange,
+    onClose
 }: {
   shape: Shapes;
   onChange: (updates: Partial<Shapes>) => void;
+  onClose: () => void;
 }) {
     const currentColor = shape.strokeColor ?? "#D3D3D3";
     const currentWidth = shape.strokeWidth ?? 2;
     const isText = shape.type === "text";
     const currentFontSize = shape.type === "text" ? shape.fontSize : null;
 
+    useEffect(() => {
+         const handleClick = (e: PointerEvent) => {
+            if (!(e.target as HTMLElement).closest(".palette-root")) {
+                onClose();
+            }
+        };
+
+        window.addEventListener("pointerdown", handleClick);
+        return () => window.removeEventListener("pointerdown", handleClick);
+}, []);
+
   return (
     <motion.div
+        drag
+        dragMomentum={false}
+        dragElastic={0.1}
+        onDragEnd={(e,info) => {
+            if(info.offset.x < -120){
+                onClose();
+            }
+        }}
         onPointerDown={(e) => {
             e.preventDefault();     // ⬅️ THIS IS CRITICAL
             e.stopPropagation();
@@ -54,6 +76,29 @@ export default function ShapePalette({
       exit={{ opacity: 0, x: -80 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
     >
+        <div
+            className="flex items-center justify-between "
+        >
+            {/* 👇 Drag handle */}
+            <div className="flex items-center gap-2 text-zinc-400">
+                <div className="flex flex-col gap-[2px]">
+                    <span className="w-4 h-[2px] bg-zinc-500 rounded" />
+                    <span className="w-4 h-[2px] bg-zinc-500 rounded" />
+                    <span className="w-4 h-[2px] bg-zinc-500 rounded" />
+                </div>
+                <span className="text-xs">Drag</span>
+            </div>
+
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onClose();
+                }}
+                className="text-zinc-400 hover:text-white transition text-sm"
+            >
+                ✕
+            </button>
+        </div>
         <div className="rounded-md bg-zinc-800/80 border border-zinc-700 px-3 py-2">
             <p className="text-[12px] text-zinc-200 text-center leading-snug">
                 Double-click to apply style

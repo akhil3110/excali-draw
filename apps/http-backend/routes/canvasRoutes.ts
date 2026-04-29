@@ -3,7 +3,7 @@ import { db } from "@repo/db/db";
 import { canvas, canvasUsers, chat, user } from "@repo/db/schema";
 import type { Request, Response } from "express";
 import { and, eq, exists } from "drizzle-orm";
-import { redisPublisher } from "@repo/redis/client";
+// import { redisPublisher } from "@repo/redis/client";
 
 
 
@@ -207,19 +207,19 @@ export async function getAllCanvasRoute(req: Request, res: Response) {
             })
         }
 
-        const cacheKey = `canvases:${req.userId}`;
+        // const cacheKey = `canvases:${req.userId}`;
         
-        let cacheData = null;
+        // let cacheData = null;
 
         try {
-            cacheData = await redisPublisher.get(cacheKey);
+            // cacheData = await redisPublisher.get(cacheKey);
         } catch (err) {
             console.log("Redis error:", err);
         }
         
-        if(cacheData){
-            return res.json(JSON.parse(cacheData))
-        }
+        // if(cacheData){
+        //     return res.json(JSON.parse(cacheData))
+        // }
 
         const canvases = await db.query.canvas.findMany({
             where: (canvas,{eq}) => eq(canvas.adminId,req.userId!),
@@ -280,7 +280,7 @@ export async function getAllCanvasRoute(req: Request, res: Response) {
                 }
         })
 
-        await redisPublisher.set(cacheKey,JSON.stringify({canvases,memberCanvas}),"EX",60)
+        // await redisPublisher.set(cacheKey,JSON.stringify({canvases,memberCanvas}),"EX",60)
 
         return res.json({
            canvases,
@@ -375,7 +375,7 @@ export async function deleteCanvasRoute(req: Request, res: Response) {
             return await tx.select().from(canvas).where(eq(canvas.adminId,req.userId!))
         })
 
-        await db.delete(canvas).where(eq(canvas.id,canvasExist.id)).returning()
+       
         return res.json({
             canvas: remainingCanvas
         })

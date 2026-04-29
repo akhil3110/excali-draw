@@ -64,7 +64,7 @@ const DeleteCanvasModal = () => {
                 disabled={isLoading}
                 className="bg-red-600 text-white hover:bg-red-500"
               >
-                Logout
+                Delete
               </Button>
             </div>
           </DialogFooter>

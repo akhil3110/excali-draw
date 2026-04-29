@@ -1,12 +1,12 @@
 "use client";
 
-import { clearCanvas, draw, drawSelectionOutline, drawShape, getTextBounds, Shapes } from "@/draw";
+import { clearCanvas, draw,  getTextBounds, Shapes } from "@/draw";
 import { useSockets } from "@/hooks/useSockets";
 import { useEffect, useRef, useState } from "react";
 import TopToolbar from "./TopToolbar";
 import axios from "axios";
 import { backendUrl } from "@/config";
-import { isUserAdmin } from "@/lib/isUserAdmin";
+
 import { CanvasLoader } from "./CanvasLoader";
 import toast from "react-hot-toast";
 import useModalStore from "@/store/modal-store";
@@ -210,7 +210,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
     
     return () => {
       socket.removeEventListener("message", handleMessage);
-    };
+    };     
   },[socket,canvasId]);
 
   const  clearAllShapes= async () => {
@@ -309,8 +309,6 @@ const CanvasBoard = ({ canvasId, token }: any) => {
 
                 delete (remainingUpdates as any).fontSize
               }
-
-
               Object.assign(selectedShape, updates);
               setActiveStyle((prev) => ({...prev, ...updates}))
 
@@ -326,6 +324,7 @@ const CanvasBoard = ({ canvasId, token }: any) => {
                 })
               );
             }}
+            onClose={() => setSelectedShapeId(null)}
           />
         )}
       </AnimatePresence>

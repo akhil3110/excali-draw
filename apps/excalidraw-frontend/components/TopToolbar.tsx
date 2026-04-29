@@ -74,7 +74,7 @@ export default function TopToolbar({ tool, setTool,onClear,admin, onManageUsers,
         })}
         </div>
         {/* {admin && ( */}
-            <div className="fixed top-4 right-4 z-50">
+            <div className="fixed bottom-0 md:top-4 right-4 z-50">
                 <div className="flex flex-col gap-y-2">
                     <ActionTooltip label="Clear Canvas">
                         <Button

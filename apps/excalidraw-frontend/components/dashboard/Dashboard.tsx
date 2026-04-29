@@ -92,10 +92,10 @@ const Dashboard = ({
         token={token} 
         isOpen={sidebarOpen} 
         onClose={() => setSidebarOpen(false)} 
-        count={whiteboards.length+memberWhiteboards.length} 
-        yourBoard={whiteboards.length}
-        invitedBoard={memberWhiteboards.length}
-      />
+        count={whiteboards.length || 0 + memberWhiteboards.length || 0}
+        yourBoard={whiteboards.length || 0}
+        invitedBoard={memberWhiteboards.length || 0}
+      /> 
 
       {/* Main Content */}
       <div className="lg:ml-64">
@@ -180,11 +180,11 @@ const Dashboard = ({
                   key={board.id}
                   id={board.id}
                   title={board.name}
-                  collaborators={Number(board.canvasUsers.length+1)}
+                  collaborators={(board.canvasUsers?.length || 0) + 1}
                   isFavorite={board.isFavorite}
                   isShared={board.isShared}
                   isAdmin = {board.adminId === userId}
-                  email= {board.admin.email}
+                  email={board.admin?.email ?? ""}
                   members={board.canvasUsers}
                 />
               ))}

@@ -73,7 +73,7 @@ const WhiteboardCard = ({
             <ActionTooltip label="Delete canvas" side="bottom">
               <Button onClick={() =>onOpen("delte-canvas-modal", {canvasId:id })} className="p-1.5 rounded-lg bg-[hsl(222,47%,11%)]/60 text-[hsl(215,20%,65%)] hover:text-[hsl(210,40%,98%)] backdrop-blur-sm transition-colors cursor-pointer">
                 <Trash className="w-4 h-4" />
-            </Button>
+            </Button> 
             </ActionTooltip>
           </div>
         </div>
